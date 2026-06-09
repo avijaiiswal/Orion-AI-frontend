@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orion AI Hub - Admin Control Tower</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Admin specific extra styles */
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem; }
+        .admin-card { background-color: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; border: 1px solid #334155; }
+        .status-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; font-weight: bold; }
+        .status-active { background-color: #065f46; color: #34d399; }
+        .status-expired { background-color: #991b1b; color: #f87171; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { text-align: left; padding: 0.75rem; border-bottom: 1px solid #334155; }
+        th { color: var(--accent); }
+        .screenshot-preview { width: 80px; height: auto; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-section">
+                <h2><i class="fa-solid fa-shield-halved"></i> Orion<span>Hub Admin</span></h2>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active"><i class="fa-solid fa-key"></i> Key Manager</button>
+                <button class="nav-item" onclick="window.location.href='index.html'"><i class="fa-solid fa-arrow-left"></i> Back to App</button>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="main-header">
+                <h1>Admin Control Tower</h1>
+                <p>Manage Gemini/Groq API Keys and Premium Manual UPI Approvals.</p>
+            </header>
+
+            <div class="admin-grid">
+                <div class="admin-card">
+                    <h3><i class="fa-solid fa-server"></i> Multi-Model API Rotation (8+ Keys)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Provider</th>
+                                <th>Key Mask</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keysTableBody">
+                            <tr>
+                                <td><i class="fa-solid fa-bolt" style="color:#f59e0b;"></i> Groq (Llama3)</td>
+                                <td>gsk_xxxx...89a1</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td><i class="fa-solid fa-gem" style="color:#38bdf8;"></i> Gemini 2.0</td>
+                                <td>AIzaSy...789b</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td><i class="fa-solid fa-gem" style="color:#38bdf8;"></i> Gemini 2.0</td>
+                                <td>AIzaSy...1122</td>
+                                <td><span class="status-badge status-expired">Expired (429)</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="admin-card">
+                    <h3><i class="fa-solid fa-indian-rupee-sign"></i> Premium UPI Requests (₹99 Tier)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User Email</th>
+                                <th>Screenshot</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentTableBody">
+                            <tr>
+                                <td>creator_guy@gmail.com</td>
+                                <td><i class="fa-solid fa-file-image fa-2x" style="color:var(--text-muted);"></i></td>
+                                <td><button class="nav-item" style="background:#065f46; color:white; padding:5px 10px;" onclick="alert('User Activated!')">Approve</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

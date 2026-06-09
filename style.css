@@ -16,7 +16,7 @@
 body {
     background-color: var(--bg-primary);
     color: var(--text-main);
-    overflow-hidden: hidden;
+    overflow: hidden;
 }
 
 .app-container {
@@ -24,7 +24,6 @@ body {
     height: 100vh;
 }
 
-/* Sidebar Styles */
 .sidebar {
     width: 260px;
     background-color: var(--bg-secondary);
@@ -68,7 +67,13 @@ body {
     transform: translateX(5px);
 }
 
-/* Main Content Styles */
+.sidebar-footer {
+    margin-top: auto;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-align: center;
+}
+
 .main-content {
     flex: 1;
     padding: 2rem;
@@ -128,7 +133,6 @@ button#generateBtn:hover {
 
 .hidden { display: none; }
 
-/* Output & Skeleton Styles */
 .output-container {
     margin-top: 2rem;
 }
@@ -140,6 +144,7 @@ button#generateBtn:hover {
     border-radius: 8px;
     min-height: 150px;
     margin-top: 0.5rem;
+    line-height: 1.6;
 }
 
 .placeholder-text {
@@ -147,7 +152,7 @@ button#generateBtn:hover {
     font-style: italic;
 }
 
-/* SKELETON ANIMATION CODE */
+/* SKELETON LOADER ANIMATION */
 .skeleton {
     background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
     background-size: 200% 100%;
@@ -160,7 +165,7 @@ button#generateBtn:hover {
     100% { background-position: -200% 0; }
 }
 
-/* Toast Styles */
+/* TOAST ALERTS */
 .toast-container {
     position: fixed;
     top: 20px;
@@ -179,4 +184,4 @@ button#generateBtn:hover {
 @keyframes slideIn {
     from { transform: translateX(100%); }
     to { transform: translateX(0); }
-      }
+}

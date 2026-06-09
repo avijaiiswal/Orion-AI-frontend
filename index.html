@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orion AI - All-in-One Founder & Creator Suite</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-section">
+                <h2><i class="fa-solid fa-space-shuttle"></i> Orion<span>AI</span></h2>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" onclick="switchTab('startup')"><i class="fa-solid fa-rocket"></i> Startup Suite</button>
+                <button class="nav-item" onclick="switchTab('creator')"><i class="fa-solid fa-video"></i> Creator Studio</button>
+                <button class="nav-item" onclick="switchTab('marketing')"><i class="fa-solid fa-chart-line"></i> Growth & Ads</button>
+                <button class="nav-item" onclick="switchTab('ecom')"><i class="fa-solid fa-bag-shopping"></i> E-Commerce Hub</button>
+            </nav>
+            <div class="sidebar-footer">
+                <p>Launch Tier: v1.0</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="main-header">
+                <h1 id="tabTitle">Startup Suite</h1>
+                <p id="tabDesc">Pitch decks, cold emails, and legal frameworks for founders.</p>
+            </header>
+
+            <section class="workspace">
+                <div class="input-group">
+                    <label for="toolSelector">Select Specific Tool:</label>
+                    <select id="toolSelector" onchange="handleToolChange()">
+                        </select>
+                </div>
+
+                <div id="imageSection" class="input-group hidden">
+                    <label for="imageInput"><i class="fa-solid fa-image"></i> Upload Slide / Thumbnail Screenshot:</label>
+                    <input type="file" id="imageInput" accept="image/*">
+                </div>
+
+                <div id="textSection" class="input-group">
+                    <label for="textInput" id="textLabel">Describe your startup/topic:</label>
+                    <textarea id="textInput" rows="6" placeholder="Yahan apna concept ya detail likhein..."></textarea>
+                </div>
+
+                <button id="generateBtn" onclick="generateSolution()"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Solution</button>
+
+                <div class="output-container">
+                    <h3><i class="fa-solid fa-square-poll-horizontal"></i> Orion AI Response:</h3>
+                    <div id="outputBox" class="output-box">
+                        <p class="placeholder-text">Aapka output yahan dikhega...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

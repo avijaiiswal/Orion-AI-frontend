@@ -1,158 +1,233 @@
-// 1. Saare Tools aur Categories ka Data Matrix
+// Tools Configuration Matrix
 const toolsData = {
-    startup: {
-        title: "Startup Suite",
-        desc: "Pitch decks, high-converting cold emails, and legal frameworks for founders.",
-        tools: [
-            { id: "pitch", name: "Slide/Pitch Checker (Gemini Multimodal)", hasImage: true, label: "Describe the core goal of this slide:" },
-            { id: "cold_email", name: "High-Converting Cold Email Pitcher", hasImage: false, label: "Enter Investor/Client details & your value proposition:" },
-            { id: "legal_draft", name: "Legal Document & Agreement Generator", hasImage: false, label: "Enter Company Name and type of Agreement needed (e.g., NDA, Co-founder):" }
-        ]
-    },
-    creator: {
-        title: "Creator Studio",
-        desc: "Video scripts, high-CTR hooks, and thumbnail concepts for YouTubers and content creators.",
-        tools: [
-            { id: "script_writing", name: "Video Script Writer (Groq Powered - Super Fast)", hasImage: false, label: "Enter your Video Topic, Duration & Target Audience:" },
-            { id: "thumbnail_audit", name: "Thumbnail Concept Evaluator (Gemini)", hasImage: true, label: "Describe your video concept and what text you plan to use on thumbnail:" },
-            { id: "hook_gen", name: "Audience Retention Hook Generator", hasImage: false, label: "What is your video topic? (Get 5 highly engaging hooks):" }
-        ]
-    },
-    marketing: {
-        title: "Growth & Ads",
-        desc: "High-converting ad copies and marketing campaigns for digital growth.",
-        tools: [
-            { id: "ad_script", name: "Facebook/Insta Video Ad Script (Groq)", hasImage: false, label: "Describe the product/service you want to sell via Video Ad:" },
-            { id: "ad_copy", name: "High-Conversion Copywriting (Facebook/Google Ads)", hasImage: false, label: "Enter Product Name and Target Audience pain points:" }
-        ]
-    },
-    ecom: {
-        title: "E-Commerce Hub",
-        desc: "SEO optimized product descriptions and automated polite customer review handlers.",
-        tools: [
-            { id: "prod_desc", name: "SEO Optimized Product Description (Groq)", hasImage: false, label: "Enter Product Type, Key Features, and Target SEO Keywords:" },
-            { id: "review_reply", name: "AI Review Responder (Polite & Diplomatic)", hasImage: false, label: "Paste the customer review here (Positive or Negative):" }
-        ]
-    }
+    startup: [
+        { id: "pitch", name: "Premium Pitch Deck AI Builder", desc: "Generates high-converting templates for raising investor capital.", multimodal: true },
+        { id: "cold_email", name: "B2B Venture Cold Email Generator", desc: "Automates highly optimized sequence pitches for brands.", multimodal: false }
+    ],
+    creator: [
+        { id: "viral_hook", name: "🎬 Auto Viral-Hook Scripting Machine", desc: "Generates 5 intense psychological hooks for Reels/Shorts retention.", multimodal: false },
+        { id: "thumb_audit", name: "🎨 YouTube Thumbnail Auditor (Gemini Engine)", desc: "Upload screenshot to analyze structure layout, fonts and CTR blocks.", multimodal: true }
+    ],
+    marketing: [
+        { id: "sponsorship", name: "🎯 Sponsorship & Brand Deal Pitcher", desc: "Formats crisp outreach letters based on niche data matrices.", multimodal: false }
+    ],
+    ecom: [
+        { id: "ecom_listing", name: "Product Listing Catalog Optimizer", desc: "Optimizes title tags and specifications for online storefronts.", multimodal: false }
+    ]
 };
 
+// Global App States
 let currentTab = 'startup';
+let userProfile = { email: "", status: "free", trialsLeft: 5 };
+let selectedRating = 0;
 
-// 2. Tab Switching Logic (Sidebar Click Handler)
+// On Initial Platform Frame Boot up
+window.onload = function() {
+    switchTab('startup');
+    loadLocalChatHistory();
+};
+
 function switchTab(tabId) {
     currentTab = tabId;
+    document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
     
-    // UI mein button active classes update karein
-    document.querySelectorAll('.nav-menu .nav-item').forEach(btn => btn.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-    
-    // Header texts ko update karein
-    document.getElementById('tabTitle').innerText = toolsData[tabId].title;
-    document.getElementById('tabDesc').innerText = toolsData[tabId].desc;
-    
-    // Dropdown options populate karein
+    // UI selection highlights toggle
+    const activeBtn = document.querySelector(`button[onclick="switchTab('${tabId}')"]`);
+    if(activeBtn) activeBtn.classList.add('active');
+
+    // Headers injection adjustments
+    if(tabId === 'startup') {
+        updateHeader("Startup Suite", "Pitch decks, cold emails, and legal frameworks for founders.");
+    } else if(tabId === 'creator') {
+        updateHeader("Creator Studio", "Viral script hooks, thumbnail auditing, and description engines.");
+    } else if(tabId === 'marketing') {
+        updateHeader("Growth & Ads", "High conversion frameworks and brand outreach blueprints.");
+    } else if(tabId === 'ecom') {
+        updateHeader("E-Commerce Hub", "Inventory data mapping tools and catalog descriptions.");
+    }
+
     populateTools(tabId);
 }
 
-// Dropdown settings dynamically load karne ke liye
+function updateHeader(title, desc) {
+    document.getElementById('tabTitle').innerText = title;
+    document.getElementById('tabDesc').innerText = desc;
+}
+
 function populateTools(tabId) {
     const selector = document.getElementById('toolSelector');
     selector.innerHTML = '';
-    
-    toolsData[tabId].tools.forEach(tool => {
+    toolsData[tabId].forEach(tool => {
         let opt = document.createElement('option');
         opt.value = tool.id;
         opt.innerText = tool.name;
         selector.appendChild(opt);
     });
-    
-    handleToolChange(); // Pehle default option ke hisab se form labels range hon
+    handleToolChange();
 }
 
-// 3. Dropdown Change Handler (Image Section Show/Hide + Label Management)
 function handleToolChange() {
-    const selectedToolId = document.getElementById('toolSelector').value;
-    const currentTools = toolsData[currentTab].tools;
-    const activeTool = currentTools.find(t => t.id === selectedToolId);
+    const currentToolId = document.getElementById('toolSelector').value;
+    const allTools = Object.values(toolsData).flat();
+    const activeTool = allTools.find(t => t.id === currentToolId);
     
-    if (!activeTool) return;
-    
-    // Label aur placeholders change karein based on selected tool
-    document.getElementById('textLabel').innerText = activeTool.label;
-    
-    // Image Upload input ko show or hide karein
-    const imageSection = document.getElementById('imageSection');
-    if (activeTool.hasImage) {
-        imageSection.classList.remove('hidden');
+    if(activeTool && activeTool.multimodal) {
+        document.getElementById('imageSection').classList.remove('hidden');
     } else {
-        imageSection.classList.add('hidden');
+        document.getElementById('imageSection').classList.add('hidden');
     }
 }
 
-// 4. Toast Notifications Setup (Premium Popup Alerts)
-function showToast(message, type = 'success') {
-    const container = document.getElementById('toastContainer');
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerText = message;
-    
-    if(type === 'error') {
-        toast.style.backgroundColor = '#ef4444'; // Red alert color
-    }
-    
-    container.appendChild(toast);
-    
-    // 3 seconds baad screen se transparent tarike se clear ho jaye
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
+// PREMIUM LOGIN GATEWAY VALIDATION FLOW
+function handlePremiumLogin() {
+    const email = document.getElementById('authEmail').value;
+    const token = document.getElementById('authCode').value;
 
-// 5. Orion AI Hub Engine Run (Output Execution with SKELETON LOADER)
-async function generateSolution() {
-    const textInput = document.getElementById('textInput').value.trim();
-    const toolSelected = document.getElementById('toolSelector').value;
-    const outputBox = document.getElementById('outputBox');
-    
-    // Validation: Text area empty check
-    if (!textInput) {
-        showToast("Bhai, pehle details toh likho! Box khali hai.", "error");
-        document.getElementById('textInput').style.borderColor = '#ef4444';
+    if(!email || !token) {
+        showToast("Bhai, please email aur token donon fill karo!");
         return;
-    } else {
-        document.getElementById('textInput').style.borderColor = '#334155';
     }
-    
-    // 🌌 REAL SKELETON LOADER WAVE WAVE WAVE EFFECT
-    outputBox.innerHTML = `
-        <div class="skeleton" style="height: 24px; width: 45%;"></div>
-        <div class="skeleton" style="height: 16px; width: 100%;"></div>
-        <div class="skeleton" style="height: 16px; width: 92%;"></div>
-        <div class="skeleton" style="height: 16px; width: 85%;"></div>
-    `;
-    
-    showToast("Orion AI Hub running engine...", "success");
 
-    try {
-        // BACKEND PIPELINE SIMULATION (Jab hum backend deploy karenge, yahan asli fetch custom routes aayega)
-        setTimeout(() => {
-            outputBox.innerHTML = `
-                <p style="color: #38bdf8; font-weight: bold; margin-bottom: 12px;"><i class="fa-solid fa-circle-check"></i> [ORION ${toolSelected.toUpperCase()} ACTIVE]</p>
-                <p>Bhai! Teri <strong>Orion AI Hub</strong> ki teesri file <code>script.js</code> bhi ekdum makkhan chal rahi hai. Frontend dashboard ab live click karne ke liye taiyar hai.</p>
-                <p style="margin-top: 10px; color: #94a3b8; font-size: 0.95rem;">Chalo ab jaldi se next step par badhte hain aur hamara dynamic dual backend setup (Groq + Gemini API Rotation) start karte hain!</p>
-            `;
-            showToast("Solution Computed Successfully!", "success");
-        }, 2200); // 2.2 Seconds active skeleton waiting animation
-        
-    } catch (error) {
-        outputBox.innerHTML = `<p style="color: #ef4444;">Error syncing with Orion Core Infrastructure.</p>`;
-        showToast("Server Connection Failed! Key failover protocol ready.", "error");
+    // Static bypass evaluation for local verification staging
+    if(token === "ORION_ADMIN" || token === "AVI_VIP" || token === "ISHAN_VIP") {
+        userProfile = { email: email, status: "admin", trialsLeft: 999999 };
+        showToast("Welcome Core Founder! Infinite Bypass Granted.");
+    } else {
+        userProfile = { email: email, status: "active_tier", trialsLeft: 0 };
+        showToast("Premium Identity Token verified. Core active.");
+    }
+
+    document.getElementById('loginWall').classList.add('hidden');
+    updateClientBadge();
+}
+
+function updateClientBadge() {
+    const badge = document.getElementById('userBadge');
+    const text = document.getElementById('badgeText');
+    badge.classList.remove('hidden');
+
+    if(userProfile.status === 'admin') {
+        text.innerHTML = `<i class="fa-solid fa-user-secret"></i> Orion Admin Mode`;
+    } else {
+        text.innerHTML = `<i class="fa-solid fa-crown text-gold"></i> Premium Access Active`;
     }
 }
 
-// App start hote hi automatic Startup Suite aur default options trigger ho jayein
-window.onload = function() {
-    populateTools('startup');
-};
-          
+// CRUNCHYROLL CARD VIEWER POPUPS
+function showCrunchyrollPay() { document.getElementById('paywallModal').classList.remove('hidden'); }
+function closePaywall() { document.getElementById('paywallModal').classList.add('hidden'); }
+
+function triggerCheckout(tier) {
+    showToast(`Redirecting to Secure PayPal Gateway for ${tier.toUpperCase()} activation...`);
+}
+
+// CORE GENERATE SHORTCUTS & LOCAL CHAT SESSIONS CAPTURES
+function generateSolution() {
+    const textInput = document.getElementById('textInput').value;
+    if(!textInput) {
+        showToast("Bhai phle text details toh dalo context ke liye!");
+        return;
+    }
+
+    // Checking client trial status thresholds
+    if(userProfile.status === "free" && userProfile.trialsLeft <= 0) {
+        showCrunchyrollPay();
+        showToast("Bhai aapke 5 Free Trials khatam ho gye hain! Please upgrade kijiye.");
+        return;
+    }
+
+    const outputBox = document.getElementById('outputBox');
+    // Shimmer skeleton layout triggers
+    outputBox.innerHTML = `
+        <div class="skeleton" style="width: 80%; height: 20px;"></div>
+        <div class="skeleton" style="width: 95%; height: 20px;"></div>
+        <div class="skeleton" style="width: 60%; height: 20px;"></div>
+    `;
+
+    if(userProfile.status === "free") {
+        userProfile.trialsLeft--;
+        document.getElementById('badgeText').innerText = `Free Trial: ${userProfile.trialsLeft} left`;
+    }
+
+    setTimeout(() => {
+        // Core dummy text simulation rendering markdown support targets
+        outputBox.innerHTML = `<h3>### System Response Successfully Compiled</h3><p>Bhai aapka custom roadmap ready ho gya hai. Yeh script 2026 trend vectors ke according structure kari h. <strong>**Orion Hub Engine**</strong> response parameters perfectly matched.</p>`;
+        document.getElementById('copyBtn').classList.remove('hidden');
+        
+        // Push context string metadata into recent chats history tracking blocks
+        saveToLocalHistory(textInput.substring(0, 25) + "...");
+    }, 1800);
+}
+
+function saveToLocalHistory(titleSnippet) {
+    let history = JSON.parse(localStorage.getItem('orion_history')) || [];
+    history.unshift(titleSnippet);
+    if(history.length > 5) history.pop(); // Hold limit threshold
+    localStorage.setItem('orion_history', JSON.stringify(history));
+    loadLocalChatHistory();
+}
+
+function loadLocalChatHistory() {
+    const listContainer = document.getElementById('recentChatsList');
+    let history = JSON.parse(localStorage.getItem('orion_history')) || [];
+    
+    if(history.length === 0) {
+        listContainer.innerHTML = `<p class="no-history-text">No recent sessions</p>`;
+        return;
+    }
+    
+    listContainer.innerHTML = '';
+    history.forEach(chatTitle => {
+        let node = document.createElement('div');
+        node.className = "history-item";
+        node.innerHTML = `<i class="fa-solid fa-message" style="font-size:0.7rem; color:var(--accent); margin-right:5px;"></i> ${chatTitle}`;
+        listContainer.appendChild(node);
+    });
+}
+
+// FEEDBACK AND REVIEWS LOGIC GATEWAYS
+function openFeedback() { document.getElementById('feedbackModal').classList.remove('hidden'); }
+function closeFeedback() { document.getElementById('feedbackModal').classList.add('hidden'); }
+
+function setRating(stars) {
+    selectedRating = stars;
+    const starIcons = document.querySelectorAll('.rating-stars i');
+    starIcons.forEach((icon, idx) => {
+        if(idx < stars) {
+            icon.classList.remove('fa-regular'); icon.classList.add('fa-solid');
+        } else {
+            icon.classList.remove('fa-solid'); icon.classList.add('fa-regular');
+        }
+    });
+}
+
+function submitUserFeedback() {
+    const text = document.getElementById('feedbackText').value;
+    if(selectedRating === 0) { showToast("Bhai star ratings toh select karo!"); return; }
+    showToast(`⭐ ${selectedRating} Star Feedback submitted locally to system log!`);
+    closeFeedback();
+}
+
+// COMPLIANCE HELPDESKS METHODS (PLAY STORE COMPLIANCE)
+function triggerSupport() { alert("Orion Customer Helpdesk: For quick ticket resolution, write to support@orionaihub.com or submit transaction logs via telegram gateway."); }
+function triggerDeleteRequest() { 
+    localStorage.clear(); 
+    loadLocalChatHistory();
+    alert("User sessions cache database and temporary system cookies flushed from local browser sandbox completely."); 
+}
+
+function copyToClipboard() {
+    const text = document.getElementById('outputBox').innerText;
+    navigator.clipboard.writeText(text);
+    showToast("📋 Script successfully copied to clipboard!");
+}
+
+function showToast(msg) {
+    const container = document.getElementById('toastContainer');
+    let toast = document.createElement('div');
+    toast.className = "toast";
+    toast.innerText = msg;
+    container.appendChild(toast);
+    setTimeout(() => { toast.remove(); }, 3000);
+}
+

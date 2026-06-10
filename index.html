@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orion AI Hub - All-in-One Founder & Creator Suite</title>
+    <title>Orion AI Hub - Premium Suite</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -11,10 +11,101 @@
 
     <div id="toastContainer" class="toast-container"></div>
 
+    <div id="loginWall" class="modal-overlay">
+        <div class="premium-modal auth-card">
+            <h2><i class="fa-solid fa-space-shuttle animate-float"></i> Orion<span>Hub</span></h2>
+            <p class="auth-subtitle">Enter your secret access token to unlock V1.0</p>
+            <div class="input-group">
+                <input type="email" id="authEmail" placeholder="Registered Email Address">
+            </div>
+            <div class="input-group">
+                <input type="password" id="authCode" placeholder="Access Token / Activation Key">
+            </div>
+            <button id="loginSubmitBtn" onclick="handlePremiumLogin()">Unlock Core Access</button>
+            <p class="auth-footer">Don't have a token? <a href="#" onclick="showCrunchyrollPay()">View Premium Pricing Tiers</a></p>
+        </div>
+    </div>
+
+    <div id="paywallModal" class="modal-overlay hidden">
+        <div class="premium-modal paywall-card">
+            <button class="close-paywall" onclick="closePaywall()">&times;</button>
+            <div class="paywall-header">
+                <h3>Orion AI Hub Premium</h3>
+                <p>Choose your tier. Start creating with supreme velocity.</p>
+            </div>
+            
+            <div class="plans-container">
+                <div class="plan-box">
+                    <span class="plan-tag">Flexible</span>
+                    <h4>WEEKLY PASS</h4>
+                    <div class="plan-price">₹350<span> / week</span></div>
+                    <ul class="plan-features">
+                        <li><i class="fa-solid fa-check"></i> 50 AI Requests / Week</li>
+                        <li><i class="fa-solid fa-check"></i> Access to all Startup Suite tools</li>
+                        <li><i class="fa-solid fa-check"></i> Creator Studio access</li>
+                    </ul>
+                    <button class="pay-btn" onclick="triggerCheckout('weekly')">Subscribe with PayPal</button>
+                </div>
+
+                <div class="plan-box recommended">
+                    <span class="plan-tag tag-hot">30% OFF</span>
+                    <h4>MONTHLY PRO</h4>
+                    <div class="plan-price"><span class="old-price">₹2500</span> ₹1,750<span> / month</span></div>
+                    <ul class="plan-features">
+                        <li><i class="fa-solid fa-check"></i> 300 AI Requests / Month</li>
+                        <li><i class="fa-solid fa-check"></i> Priority Groq/Gemini speeds</li>
+                        <li><i class="fa-solid fa-check"></i> Advanced Growth & Ads suites</li>
+                    </ul>
+                    <button class="pay-btn" onclick="triggerCheckout('monthly')">Subscribe with PayPal</button>
+                </div>
+
+                <div class="plan-box ultimate-tier">
+                    <span class="plan-tag tag-gold">40% OFF</span>
+                    <h4>YEARLY ULTIMATE</h4>
+                    <div class="plan-price"><span class="old-price">10,000</span> ₹6,000<span> / year</span></div>
+                    <ul class="plan-features">
+                        <li><i class="fa-solid fa-bolt text-gold"></i> 🔥 PURE UNLIMITED REQUESTS</li>
+                        <li><i class="fa-solid fa-check"></i> Lifetime VIP Failover keys</li>
+                        <li><i class="fa-solid fa-check"></i> Dedicated support routing</li>
+                    </ul>
+                    <button class="pay-btn gold-btn" onclick="triggerCheckout('ultimate')">Unlock Unlimited Mode</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="feedbackModal" class="modal-overlay hidden">
+        <div class="premium-modal feedback-card">
+            <h3><i class="fa-solid fa-comment-dots text-accent"></i> Share Core Feedback</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Help Avi & Ishan optimize this platform.</p>
+            
+            <div class="rating-stars">
+                <i class="fa-star fa-regular" onclick="setRating(1)"></i>
+                <i class="fa-star fa-regular" onclick="setRating(2)"></i>
+                <i class="fa-star fa-regular" onclick="setRating(3)"></i>
+                <i class="fa-star fa-regular" onclick="setRating(4)"></i>
+                <i class="fa-star fa-regular" onclick="setRating(5)"></i>
+            </div>
+            
+            <textarea id="feedbackText" rows="4" placeholder="Bhai kya mast laga ya kya dikkat aayi... yahan likho!"></textarea>
+            <div style="display:flex; gap:1rem; margin-top:1rem;">
+                <button class="admin-btn" style="background:#334155; color:white;" onclick="closeFeedback()">Cancel</button>
+                <button class="admin-btn" onclick="submitUserFeedback()">Submit Feedback</button>
+            </div>
+        </div>
+    </div>
+
     <div class="app-container">
         <aside class="sidebar">
             <div class="logo-section">
                 <h2><i class="fa-solid fa-space-shuttle"></i> Orion<span>Hub</span></h2>
+            </div>
+            
+            <div class="history-container">
+                <p class="history-label"><i class="fa-solid fa-clock-rotate-left"></i> RECENT CHATS</p>
+                <div id="recentChatsList" class="history-list">
+                    <p class="no-history-text">No recent sessions</p>
+                </div>
             </div>
             
             <nav class="nav-menu">
@@ -23,6 +114,12 @@
                 <button class="nav-item" onclick="switchTab('marketing')"><i class="fa-solid fa-chart-line"></i> Growth & Ads</button>
                 <button class="nav-item" onclick="switchTab('ecom')"><i class="fa-solid fa-bag-shopping"></i> E-Commerce Hub</button>
             </nav>
+
+            <div class="compliance-row">
+                <button class="comp-link" onclick="openFeedback()"><i class="fa-solid fa-bullhorn"></i> Feedback</button>
+                <button class="comp-link" onclick="triggerSupport()"><i class="fa-solid fa-headset"></i> Support</button>
+                <button class="comp-link" onclick="triggerDeleteRequest()"><i class="fa-solid fa-trash-can"></i> Clear Data</button>
+            </div>
             
             <div class="sidebar-footer">
                 <div class="founders-box">
@@ -38,8 +135,15 @@
 
         <main class="main-content">
             <header class="main-header">
-                <h1 id="tabTitle">Startup Suite</h1>
-                <p id="tabDesc">Pitch decks, cold emails, and legal frameworks for founders.</p>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h1 id="tabTitle">Startup Suite</h1>
+                        <p id="tabDesc">Pitch decks, cold emails, and legal frameworks for founders.</p>
+                    </div>
+                    <div id="userBadge" class="user-tier-badge hidden" onclick="showCrunchyrollPay()">
+                        <span id="badgeText">Free Trial: 5 left</span>
+                    </div>
+                </div>
             </header>
 
             <section class="workspace">
@@ -62,7 +166,10 @@
                 <button id="generateBtn" onclick="generateSolution()"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Solution</button>
 
                 <div class="output-container">
-                    <h3><i class="fa-solid fa-square-poll-horizontal"></i> Orion AI Hub Response:</h3>
+                    <div style="display:flex; justify-content:between; align-items:center; margin-bottom:0.5rem;">
+                        <h3><i class="fa-solid fa-square-poll-horizontal"></i> Orion AI Hub Response:</h3>
+                        <button id="copyBtn" class="copy-shortcut-btn hidden" onclick="copyToClipboard()"><i class="fa-solid fa-copy"></i> Copy Script</button>
+                    </div>
                     <div id="outputBox" class="output-box">
                         <p class="placeholder-text">Aapka output yahan dikhega...</p>
                     </div>
@@ -73,4 +180,5 @@
 
     <script src="script.js"></script>
 </body>
-</html>
+    </html>
+    

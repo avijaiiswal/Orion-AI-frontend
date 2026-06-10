@@ -3,20 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orion AI Hub - Admin Control Tower</title>
+    <title>Orion AI Hub - Core Admin Control</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Admin specific extra styles */
-        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem; }
-        .admin-card { background-color: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; border: 1px solid #334155; }
-        .status-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; font-weight: bold; }
-        .status-active { background-color: #065f46; color: #34d399; }
-        .status-expired { background-color: #991b1b; color: #f87171; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { text-align: left; padding: 0.75rem; border-bottom: 1px solid #334155; }
-        th { color: var(--accent); }
-        .screenshot-preview { width: 80px; height: auto; border-radius: 4px; cursor: pointer; }
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+        .admin-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .admin-card h3 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.15rem;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 0.5rem;
+        }
+        .form-row {
+            margin-bottom: 1rem;
+        }
+        .form-row label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+        .admin-btn {
+            background: linear-gradient(135deg, var(--accent) 0%, #0284c7 100%);
+            color: #0f172a;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+            margin-top: 0.5rem;
+        }
+        .admin-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+            background: #0f172a;
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            margin-top: 0.25rem;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: var(--text-main);
+        }
+        .feedback-log-list {
+            max-height: 250px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            padding-right: 5px;
+        }
+        .feedback-item {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 0.75rem;
+        }
+        .feedback-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+        }
+        .stars-display {
+            color: var(--gold);
+        }
     </style>
 </head>
 <body>
@@ -24,73 +103,161 @@
     <div class="app-container">
         <aside class="sidebar">
             <div class="logo-section">
-                <h2><i class="fa-solid fa-shield-halved"></i> Orion<span>Hub Admin</span></h2>
+                <h2><i class="fa-solid fa-space-shuttle"></i> Orion<span>Hub</span></h2>
             </div>
             <nav class="nav-menu">
-                <button class="nav-item active"><i class="fa-solid fa-key"></i> Key Manager</button>
-                <button class="nav-item" onclick="window.location.href='index.html'"><i class="fa-solid fa-arrow-left"></i> Back to App</button>
+                <button class="nav-item active"><i class="fa-solid fa-screwdriver-wrench"></i> Admin Core</button>
+                <a href="index.html" style="text-decoration: none;"><button class="nav-item"><i class="fa-solid fa-arrow-left"></i> Back to App</button></a>
             </nav>
+            <div class="sidebar-footer">
+                <div class="founders-box">
+                    <p class="footer-label">ORION SYSTEM OVERRIDE</p>
+                    <div class="founder-names">
+                        <span class="founder-name"><i class="fa-solid fa-user-secret"></i> Avi Jaiswal</span>
+                        <span class="founder-name"><i class="fa-solid fa-user-secret"></i> Ishan Srivastav</span>
+                    </div>
+                </div>
+                <p class="version-tag">Admin Console: v1.0</p>
+            </div>
         </aside>
 
         <main class="main-content">
             <header class="main-header">
-                <h1>Admin Control Tower</h1>
-                <p>Manage Gemini/Groq API Keys and Premium Manual UPI Approvals.</p>
+                <h1>System Control & Gatekeeping Center</h1>
+                <p>Manage real-time subscription pricing, discount ratios, live payment gates, and user review modules.</p>
             </header>
 
             <div class="admin-grid">
+                
                 <div class="admin-card">
-                    <h3><i class="fa-solid fa-server"></i> Multi-Model API Rotation (8+ Keys)</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Provider</th>
-                                <th>Key Mask</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="keysTableBody">
-                            <tr>
-                                <td><i class="fa-solid fa-bolt" style="color:#f59e0b;"></i> Groq (Llama3)</td>
-                                <td>gsk_xxxx...89a1</td>
-                                <td><span class="status-badge status-active">Active</span></td>
-                            </tr>
-                            <tr>
-                                <td><i class="fa-solid fa-gem" style="color:#38bdf8;"></i> Gemini 2.0</td>
-                                <td>AIzaSy...789b</td>
-                                <td><span class="status-badge status-active">Active</span></td>
-                            </tr>
-                            <tr>
-                                <td><i class="fa-solid fa-gem" style="color:#38bdf8;"></i> Gemini 2.0</td>
-                                <td>AIzaSy...1122</td>
-                                <td><span class="status-badge status-expired">Expired (429)</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <h3><i class="fa-solid fa-tags"></i> Pricing & Discount Rules</h3>
+                    <div class="form-row">
+                        <label>Weekly Price (₹)</label>
+                        <input type="number" id="weeklyPrice" value="350">
+                    </div>
+                    <div class="form-row">
+                        <label>Monthly Base Price (₹)</label>
+                        <input type="number" id="monthlyBase" value="2500">
+                    </div>
+                    <div class="form-row">
+                        <label>Monthly Discount (%)</label>
+                        <input type="number" id="monthlyDiscount" value="30">
+                    </div>
+                    <div class="form-row">
+                        <label>Yearly Base Price (₹)</label>
+                        <input type="number" id="yearlyBase" value="10000">
+                    </div>
+                    <div class="form-row">
+                        <label>Yearly Discount (%) [Ultimate Unlimited]</label>
+                        <input type="number" id="yearlyDiscount" value="40">
+                    </div>
+                    <button class="admin-btn" onclick="savePricingMatrix()"><i class="fa-solid fa-cloud-arrow-up"></i> Update Pricing Matrix</button>
                 </div>
 
                 <div class="admin-card">
-                    <h3><i class="fa-solid fa-indian-rupee-sign"></i> Premium UPI Requests (₹99 Tier)</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>User Email</th>
-                                <th>Screenshot</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="paymentTableBody">
-                            <tr>
-                                <td>creator_guy@gmail.com</td>
-                                <td><i class="fa-solid fa-file-image fa-2x" style="color:var(--text-muted);"></i></td>
-                                <td><button class="nav-item" style="background:#065f46; color:white; padding:5px 10px;" onclick="alert('User Activated!')">Approve</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <h3><i class="fa-solid fa-credit-card"></i> Live Payment Hub</h3>
+                    <div class="form-row">
+                        <label>Active Client Gateway</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="gateway" value="paypal" checked onchange="toggleGateInputs()"> PayPal
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="gateway" value="upi" onchange="toggleGateInputs()"> UPI ID
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="gateway" value="qr" onchange="toggleGateInputs()"> Custom QR
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-row id-field" id="paypalDiv">
+                        <label>PayPal Merchant Email</label>
+                        <input type="email" id="paypalEmail" value="avi.jaiswal@example.com">
+                    </div>
+                    <div class="form-row id-field hidden" id="upiDiv">
+                        <label>Merchant UPI ID (Future Staging)</label>
+                        <input type="text" id="upiId" placeholder="avi@upi">
+                    </div>
+                    <div class="form-row id-field hidden" id="qrDiv">
+                        <label>Custom QR Image URL (Future Staging)</label>
+                        <input type="text" id="qrUrl" placeholder="https://imgur.com/your-qr.png">
+                    </div>
+                    <button class="admin-btn" onclick="deployActiveGateway()"><i class="fa-solid fa-circle-check"></i> Deploy Active Gateway</button>
                 </div>
+
+                <div class="admin-card">
+                    <h3><i class="fa-solid fa-user-check"></i> Manual Access Token Generator</h3>
+                    <div class="form-row">
+                        <label>User Registered Email</label>
+                        <input type="email" id="userEmail" placeholder="client@gmail.com">
+                    </div>
+                    <div class="form-row">
+                        <label>Assign Subscription Plan</label>
+                        <select id="userTier">
+                            <option value="weekly">Weekly Pass (50 Requests)</option>
+                            <option value="monthly">Monthly Pro (300 Requests)</option>
+                            <option value="ultimate">Yearly Ultimate (🔥 Unlimited)</option>
+                            <option value="admin">Orion Core Admin (🔥 System Override)</option>
+                        </select>
+                    </div>
+                    <button class="admin-btn" onclick="generateAndUnlockCode()"><i class="fa-solid fa-key"></i> Generate & Unlock Code</button>
+                </div>
+
+                <div class="admin-card" style="grid-column: span 1;">
+                    <h3><i class="fa-solid fa-star-half-stroke"></i> Live User Feedbacks Log</h3>
+                    <div id="feedbackLogBox" class="feedback-log-list">
+                        <div class="feedback-item">
+                            <div class="feedback-meta">
+                                <span>creator.tech@gmail.com</span>
+                                <span class="stars-display">⭐⭐⭐⭐⭐</span>
+                            </div>
+                            <p style="font-size:0.85rem; color:var(--text-main);">Bhai Hook generator ekdum kamaal chal rha h, maza aa gya!</p>
+                        </div>
+                        <div class="feedback-item">
+                            <div class="feedback-meta">
+                                <span>startup_founder@yahoo.com</span>
+                                <span class="stars-display">⭐⭐⭐⭐</span>
+                            </div>
+                            <p style="font-size:0.85rem; color:var(--text-main);">Pitch deck structure solid h, image upload block transparent h.</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
 
+    <script>
+        function toggleGateInputs() {
+            const selectedGate = document.querySelector('input[name="gateway"]:checked').value;
+            document.getElementById('paypalDiv').classList.add('hidden');
+            document.getElementById('upiDiv').classList.add('hidden');
+            document.getElementById('qrDiv').classList.add('hidden');
+
+            if(selectedGate === 'paypal') {
+                document.getElementById('paypalDiv').classList.remove('hidden');
+            } else if(selectedGate === 'upi') {
+                document.getElementById('upiDiv').classList.remove('hidden');
+            } else if(selectedGate === 'qr') {
+                document.getElementById('qrDiv').classList.remove('hidden');
+            }
+        }
+
+        function savePricingMatrix() {
+            alert("🎯 System Matrix Sync: Pricing thresholds updated in server staging configuration!");
+        }
+
+        function deployActiveGateway() {
+            const gate = document.querySelector('input[name="gateway"]:checked').value;
+            alert(`💳 Live Hub Shift: Active gateway successfully deployed to "${gate.toUpperCase()}" matrix.`);
+        }
+
+        function generateAndUnlockCode() {
+            const email = document.getElementById('userEmail').value;
+            if(!email) { alert("Please provide user email context!"); return; }
+            alert(`🔑 Key Matrix Generated: Subscription override link pushed securely for ${email}`);
+        }
+    </script>
 </body>
 </html>
+

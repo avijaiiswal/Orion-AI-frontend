@@ -24,6 +24,7 @@ body {
     height: 100vh;
 }
 
+/* Sidebar Styles */
 .sidebar {
     width: 260px;
     background-color: var(--bg-secondary);
@@ -67,13 +68,69 @@ body {
     transform: translateX(5px);
 }
 
+/* PREMIUM FOUNDERS DESIGN (SIDEBAR FOOTER) */
 .sidebar-footer {
     margin-top: auto;
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
+.founders-box {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 8px;
+    padding: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.founders-box:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 20px rgba(56, 189, 248, 0.15);
+    transform: translateY(-2px);
+}
+
+.footer-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+.founder-names {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.founder-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.founder-name i {
+    color: var(--accent);
+    font-size: 0.8rem;
+}
+
+.version-tag {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+/* Main Content Styles */
 .main-content {
     flex: 1;
     padding: 2rem;
@@ -133,6 +190,7 @@ button#generateBtn:hover {
 
 .hidden { display: none; }
 
+/* Output & Skeleton Styles */
 .output-container {
     margin-top: 2rem;
 }
@@ -165,7 +223,7 @@ button#generateBtn:hover {
     100% { background-position: -200% 0; }
 }
 
-/* TOAST ALERTS */
+/* Toast Styles */
 .toast-container {
     position: fixed;
     top: 20px;

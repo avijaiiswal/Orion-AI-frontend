@@ -114,10 +114,16 @@
                 <button class="nav-item" onclick="switchTab('ecom')"><i class="fa-solid fa-bag-shopping"></i> E-Commerce Hub</button>
             </nav>
 
-            <div class="compliance-row">
-                <button class="comp-link" onclick="openFeedback()"><i class="fa-solid fa-bullhorn"></i> Feedback</button>
-                <button class="comp-link" onclick="triggerSupport()"><i class="fa-solid fa-headset"></i> Support</button>
-                <button class="comp-link" onclick="triggerDeleteRequest()"><i class="fa-solid fa-trash-can"></i> Flush Cache</button>
+            <div class="compliance-row" style="display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem;">
+                <div style="display: flex; gap: 1rem; justify-content: space-between;">
+                    <button class="comp-link" onclick="openFeedback()"><i class="fa-solid fa-bullhorn"></i> Feedback</button>
+                    <button class="comp-link" onclick="triggerSupport()"><i class="fa-solid fa-headset"></i> Support</button>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: space-between; margin-top: 5px;">
+                    <a href="privacy.html" target="_blank" class="comp-link" style="text-decoration: none; font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-shield-halved"></i> Privacy</a>
+                    <a href="terms.html" target="_blank" class="comp-link" style="text-decoration: none; font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-file-contract"></i> Terms</a>
+                </div>
+                <button class="comp-link" onclick="triggerDeleteRequest()" style="width: 100%; margin-top: 5px; text-align: center;"><i class="fa-solid fa-trash-can"></i> Flush Cache (Delete Data)</button>
             </div>
             
             <div class="sidebar-footer">
@@ -178,5 +184,4 @@
 
     <script src="script.js"></script>
 </body>
-                        </html>
-                        
+</html>

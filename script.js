@@ -34,7 +34,8 @@ async function triggerDirectLogin() {
 }
 
 async function executeUserSync(email) {
-    const res = await fetch('/api/analyze?action=sync-user', {
+    // 1st Change: Added Live Vercel Backend URL here
+    const res = await fetch('https://orion-ai-backend.vercel.app/api/analyze?action=sync-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email })
@@ -102,7 +103,8 @@ async function generateSolution() {
 }
 
 async function runCoreAI(text, tool, b64) {
-    const response = await fetch('/api/analyze', {
+    // 2nd Change: Added Live Vercel Backend URL here
+    const response = await fetch('https://orion-ai-backend.vercel.app/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: userProfile.email || localStorage.getItem('orion_user_email'), textInput: text, imageBase64: b64, currentTool: tool })
@@ -126,5 +128,5 @@ function showToast(msg) {
     const container = document.getElementById('toastContainer');
     let toast = document.createElement('div'); toast.className = "toast"; toast.innerText = msg;
     container.appendChild(toast); setTimeout(() => { toast.remove(); }, 3000);
-        }
-        
+}
+    

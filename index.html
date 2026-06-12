@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orion AI Hub - Premium Architecture</title>
+    <title>Orion AI Hub | Premium Architecture</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -12,176 +12,48 @@
     <div id="toastContainer" class="toast-container"></div>
 
     <div id="loginWall" class="modal-overlay">
-        <div class="premium-modal auth-card" style="max-width:380px;">
-            <h2><i class="fa-solid fa-space-shuttle animate-float"></i> Orion<span>Hub</span></h2>
-            <p class="auth-subtitle" style="margin-bottom:1.5rem; color:var(--text-muted); font-size:0.85rem;">Enter registration email below</p>
-            
-            <div class="input-group" style="text-align:left; margin-bottom:1rem;">
-                <input type="email" id="userDirectEmail" placeholder="name@domain.com" style="padding:0.7rem;">
-            </div>
-
-            <button id="authTriggerBtn" onclick="triggerDirectLogin()" style="background:var(--accent); color:#0f172a; font-weight:bold; width:100%; border-radius:6px; padding:0.75rem; cursor:pointer; border:none; font-size:0.95rem;">
-                Unlock Core Matrix Access
-            </button>
-            
-            <p class="auth-footer" style="margin-top:1.5rem; font-size:0.75rem; color:var(--text-muted);"><a href="#" onclick="showCrunchyrollPay()" style="color:var(--text-muted); text-decoration:none;">View Supported Matrix Platforms</a></p>
-        </div>
-    </div>
-
-    <div id="paywallModal" class="modal-overlay hidden">
-        <div class="premium-modal paywall-card">
-            <button class="close-paywall" onclick="closePaywall()">&times;</button>
-            <div class="paywall-header">
-                <h3>Orion Premium Activation</h3>
-                <p>Select tier packages to recharge limits directly.</p>
-            </div>
-            
-            <div class="plans-container">
-                <div class="plan-box">
-                    <span class="plan-tag">Flexible</span>
-                    <h4>WEEKLY ROUTER</h4>
-                    <div class="plan-price">₹350<span> / week</span></div>
-                    <ul class="plan-features">
-                        <li><i class="fa-solid fa-check"></i> 50 AI Requests Matrix</li>
-                        <li><i class="fa-solid fa-check"></i> Access to all Startup tools</li>
-                    </ul>
-                    <button class="pay-btn" onclick="showToast('Redirecting to transactional nodes...')">Purchase Now</button>
-                </div>
-
-                <div class="plan-box recommended">
-                    <span class="plan-tag tag-hot">30% DISCOUNT</span>
-                    <h4>MONTHLY CORE</h4>
-                    <div class="plan-price"><span class="old-price">₹2500</span> ₹1,750<span> / month</span></div>
-                    <ul class="plan-features">
-                        <li><i class="fa-solid fa-check"></i> 300 AI Requests Buffer</li>
-                        <li><i class="fa-solid fa-check"></i> Optimized Groq/Gemini pipelines</li>
-                    </ul>
-                    <button class="pay-btn" onclick="showToast('Redirecting to transactional nodes...')">Purchase Now</button>
-                </div>
-
-                <div class="plan-box ultimate-tier">
-                    <span class="plan-tag tag-gold">40% DISCOUNT</span>
-                    <h4>YEARLY UNLIMITED</h4>
-                    <div class="plan-price"><span class="old-price">₹10,000</span> ₹6,000<span> / year</span></div>
-                    <ul class="plan-features">
-                        <li><i class="fa-solid fa-bolt text-gold"></i> 🔥 PURE INFINITE CREDIT RUNS</li>
-                        <li><i class="fa-solid fa-check"></i> Failover redundancy access active</li>
-                    </ul>
-                    <button class="pay-btn gold-btn" onclick="showToast('Redirecting to transactional nodes...')">Unlock Pure Infinite</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="feedbackModal" class="modal-overlay hidden">
-        <div class="premium-modal feedback-card">
-            <h3><i class="fa-solid fa-comment-dots text-accent"></i> Core Platform Feedback</h3>
-            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Help founders optimize backend operations.</p>
-            
-            <div class="rating-stars">
-                <i class="fa-star fa-regular" onclick="setRating(1)"></i>
-                <i class="fa-star fa-regular" onclick="setRating(2)"></i>
-                <i class="fa-star fa-regular" onclick="setRating(3)"></i>
-                <i class="fa-star fa-regular" onclick="setRating(4)"></i>
-                <i class="fa-star fa-regular" onclick="setRating(5)"></i>
-            </div>
-            
-            <textarea id="feedbackText" rows="4" placeholder="Feedback parameters..."></textarea>
-            <div style="display:flex; gap:1rem; margin-top:1rem;">
-                <button style="background:#334155; color:white; border:none; padding:0.5rem 1rem; border-radius:6px; cursor:pointer;" onclick="closeFeedback()">Cancel</button>
-                <button style="background:var(--accent); color:#0f172a; border:none; font-weight:bold; padding:0.5rem 1rem; border-radius:6px; cursor:pointer;" onclick="submitUserFeedback()">Submit Log</button>
-            </div>
+        <div class="auth-card">
+            <div class="logo-pulse"><i class="fa-solid fa-space-shuttle"></i></div>
+            <h2>Orion <span style="color:var(--accent);">Hub</span></h2>
+            <p>Secure Authentication Portal</p>
+            <input type="email" id="userDirectEmail" placeholder="Enter registration email">
+            <button id="authTriggerBtn" onclick="triggerDirectLogin()">Connect Secure Node</button>
         </div>
     </div>
 
     <div class="app-container">
         <aside class="sidebar">
             <div class="logo-section">
-                <h2><i class="fa-solid fa-space-shuttle"></i> Orion<span>Hub</span></h2>
+                <h2>Orion<span>Hub</span></h2>
             </div>
-            
-            <div class="history-container">
-                <p class="history-label"><i class="fa-solid fa-clock-rotate-left"></i> SEARCH PARAM HISTORY</p>
-                <div id="recentChatsList" class="history-list">
-                    <p class="no-history-text">No entries found</p>
-                </div>
-            </div>
-            
             <nav class="nav-menu">
                 <button class="nav-item active" onclick="switchTab('startup')"><i class="fa-solid fa-rocket"></i> Startup Suite</button>
                 <button class="nav-item" onclick="switchTab('creator')"><i class="fa-solid fa-video"></i> Creator Studio</button>
-                <button class="nav-item" onclick="switchTab('marketing')"><i class="fa-solid fa-chart-line"></i> Growth & Ads</button>
-                <button class="nav-item" onclick="switchTab('ecom')"><i class="fa-solid fa-bag-shopping"></i> E-Commerce Hub</button>
             </nav>
-
-            <div class="compliance-row" style="display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem;">
-                <div style="display: flex; gap: 1rem; justify-content: space-between;">
-                    <button class="comp-link" onclick="openFeedback()"><i class="fa-solid fa-bullhorn"></i> Feedback</button>
-                    <button class="comp-link" onclick="triggerSupport()"><i class="fa-solid fa-headset"></i> Support</button>
-                </div>
-                <div style="display: flex; gap: 1rem; justify-content: space-between; margin-top: 5px;">
-                    <a href="privacy.html" target="_blank" class="comp-link" style="text-decoration: none; font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-shield-halved"></i> Privacy</a>
-                    <a href="terms.html" target="_blank" class="comp-link" style="text-decoration: none; font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-file-contract"></i> Terms</a>
-                </div>
-                <button class="comp-link" onclick="triggerDeleteRequest()" style="width: 100%; margin-top: 5px; text-align: center;"><i class="fa-solid fa-trash-can"></i> Flush Cache (Delete Data)</button>
-            </div>
-            
             <div class="sidebar-footer">
-                <div class="founders-box">
-                    <p class="footer-label">ORION PLATFORM MANAGERS</p>
-                    <div class="founder-names">
-                        <span class="founder-name"><i class="fa-solid fa-user-tie"></i> Avi Jaiswal</span>
-                        <span class="founder-name"><i class="fa-solid fa-user-tie"></i> Ishan Srivastav</span>
-                    </div>
-                </div>
                 <p class="version-tag">Production Engine: v1.0</p>
             </div>
         </aside>
 
         <main class="main-content">
             <header class="main-header">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <h1 id="tabTitle">Startup Suite</h1>
-                        <p id="tabDesc">Pitch decks and cold email frameworks.</p>
-                    </div>
-                    <div id="userBadge" class="user-tier-badge hidden" onclick="showCrunchyrollPay()">
-                        <span id="badgeText">Account Mapping</span>
-                    </div>
-                </div>
+                <h1 id="tabTitle">Startup Suite</h1>
+                <div id="userBadge" class="user-tier-badge hidden"><span id="badgeText">Account Mapping</span></div>
             </header>
 
             <section class="workspace">
                 <div class="input-group">
-                    <label for="toolSelector">Target Tool Pipeline:</label>
                     <select id="toolSelector" onchange="handleToolChange()"></select>
                 </div>
+                <textarea id="textInput" rows="6" placeholder="Enter core context specifications..."></textarea>
+                <button id="generateBtn" onclick="generateSolution()">Process Payload Query</button>
 
-                <div id="imageSection" class="input-group hidden">
-                    <label for="imageInput"><i class="fa-solid fa-image"></i> Multimodal Input (Screenshot Image):</label>
-                    <input type="file" id="imageInput" accept="image/*">
-                </div>
-
-                <div class="input-group">
-                    <label for="textInput" id="textLabel">Core context specifications:</label>
-                    <textarea id="textInput" rows="6" placeholder="Context details yahan enter karein..."></textarea>
-                </div>
-
-                <button id="generateBtn" onclick="generateSolution()"><i class="fa-solid fa-wand-magic-sparkles"></i> Process Payload Query</button>
-
-                <div class="output-container" style="margin-top:2rem;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                        <h3><i class="fa-solid fa-square-poll-horizontal"></i> Real-time System Output:</h3>
-                        <button id="copyBtn" class="copy-shortcut-btn hidden" onclick="copyToClipboard()"><i class="fa-solid fa-copy"></i> Copy Output Payload</button>
-                    </div>
-                    <div id="outputBox" class="output-box">
-                        <p class="placeholder-text" style="color:var(--text-muted);">Aapka solution matrix yahan appear hoga...</p>
-                    </div>
+                <div class="output-container">
+                    <div id="outputBox" class="output-box">Aapka solution matrix yahan appear hoga...</div>
                 </div>
             </section>
         </main>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orion Hub — AI Toolkit</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand"><i class="fa-solid fa-meteor"></i> Orion Hub</div>
+
+        <button class="nav-item active" onclick="switchTab('startup')"><i class="fa-solid fa-rocket"></i> Startup Suite</button>
+        <button class="nav-item" onclick="switchTab('creator')"><i class="fa-solid fa-clapperboard"></i> Creator Studio</button>
+        <button class="nav-item" onclick="switchTab('marketing')"><i class="fa-solid fa-bullhorn"></i> Marketing</button>
+        <button class="nav-item" onclick="switchTab('ecom')"><i class="fa-solid fa-cart-shopping"></i> E-Commerce</button>
+
+        <div class="sidebar-footer">
+            <a class="sidebar-link" href="about.html"><i class="fa-solid fa-circle-info"></i> About</a>
+            <a class="sidebar-link" href="terms.html"><i class="fa-solid fa-file-contract"></i> Terms</a>
+            <a class="sidebar-link" href="privacy.html"><i class="fa-solid fa-shield-halved"></i> Privacy</a>
+            <span class="sidebar-link" onclick="triggerSupport()"><i class="fa-solid fa-headset"></i> Support</span>
+            <span class="sidebar-link" onclick="logoutUser()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</span>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <div class="topbar">
+            <h1 id="tabTitle">Startup Suite</h1>
+            <div class="badge hidden" id="userBadge">
+                <span id="badgeText"></span>
+            </div>
+        </div>
+
+        <!-- TOOL PANEL -->
+        <section class="panel">
+            <div class="field">
+                <label for="toolSelector">Select Tool</label>
+                <select id="toolSelector" onchange="handleToolChange()"></select>
+            </div>
+
+            <div class="field">
+                <label for="textInput">Your Input</label>
+                <textarea id="textInput" placeholder="Describe your idea, product, or context..."></textarea>
+            </div>
+
+            <div class="field" id="imageSection" style="display:none;">
+                <label>Image (optional)</label>
+                <label class="upload-zone" id="imageLabel">
+                    Attach screenshot or image for analysis
+                    <input type="file" id="imageInput" accept="image/*" onchange="handleImageSelect()">
+                </label>
+            </div>
+
+            <button class="btn btn-block" onclick="generateSolution()"><i class="fa-solid fa-bolt"></i> Generate</button>
+        </section>
+
+        <!-- OUTPUT PANEL -->
+        <section class="panel">
+            <label>Output</label>
+            <div class="output-box" id="outputBox">Your generated content will appear here.</div>
+            <button class="btn btn-secondary copy-btn hidden" id="copyBtn" onclick="copyToClipboard()">
+                <i class="fa-solid fa-copy"></i> Copy
+            </button>
+        </section>
+
+        <!-- PRICING PANEL -->
+        <section class="panel">
+            <label>Plans</label>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="plan-name">Weekly</div>
+                    <div class="plan-price" id="priceWeekly">—</div>
+                </div>
+                <div class="pricing-card">
+                    <div class="plan-name">Monthly</div>
+                    <div class="plan-price" id="priceMonthly">—</div>
+                    <div class="plan-discount" id="priceMonthlyDiscount"></div>
+                </div>
+                <div class="pricing-card">
+                    <div class="plan-name">Yearly</div>
+                    <div class="plan-price" id="priceYearly">—</div>
+                    <div class="plan-discount" id="priceYearlyDiscount"></div>
+                </div>
+            </div>
+            <p style="font-size:13px;color:var(--text-dim)">
+                Pay via PayPal: <span id="paypalEmail">—</span> · Then email your receipt + account email to
+                <span id="supportEmail">—</span> for activation.
+            </p>
+        </section>
+
+        <!-- FEEDBACK PANEL -->
+        <section class="panel">
+            <label>Feedback</label>
+            <div class="field">
+                <textarea id="feedbackText" placeholder="Tell us what you think (optional)"></textarea>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-secondary" onclick="submitFeedback(5)"><i class="fa-solid fa-star"></i> Great</button>
+                <button class="btn btn-secondary" onclick="submitFeedback(3)"><i class="fa-solid fa-star-half-stroke"></i> Okay</button>
+                <button class="btn btn-secondary" onclick="submitFeedback(1)"><i class="fa-regular fa-star"></i> Poor</button>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<!-- LOGIN WALL -->
+<div class="modal-overlay visible" id="loginWall">
+    <div class="modal">
+        <div class="modal-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        <h2>Connect Secure Node</h2>
+        <p>Enter your email to receive a secure magic login link. No passwords required.</p>
+        <div class="field">
+            <input type="email" id="userDirectEmail" placeholder="you@example.com">
+        </div>
+        <button class="btn btn-block" id="loginBtn" onclick="triggerDirectLogin()">Send Magic Link</button>
+        <p id="loginStatusMsg" class="hidden" style="margin-top:12px;color:var(--success);font-size:13px;">
+            Check your inbox and click the link to log in. You can close this tab afterward.
+        </p>
+    </div>
+</div>
+
+<!-- PAYWALL -->
+<div class="modal-overlay" id="paywallModal">
+    <div class="modal">
+        <div class="modal-icon"><i class="fa-solid fa-crown"></i></div>
+        <h2>Upgrade Required</h2>
+        <p>You've used all your free trials. Upgrade to a paid plan to keep generating.</p>
+        <button class="btn btn-block" onclick="closePaywall()">Got it</button>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="auth.js"></script>
+<script src="script.js"></script>
+<script>loadPricing();</script>
+</body>
+</html>

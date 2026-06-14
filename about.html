@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us — Orion AI Hub</title>
+    <meta name="description" content="Meet the teenage founders behind Orion AI Hub — Avi Jaiswal & Ishan Srivastav, two students from Gonda, UP who built India's premium AI toolkit from scratch.">
+
+    <!-- Schema Markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "name": "Orion AI Hub",
+          "url": "https://orion-ai-hub.vercel.app",
+          "description": "Premium AI toolkit for Indian creators, startups, and entrepreneurs. Built by students, for the next generation.",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "INR"
+          },
+          "author": [
+            {
+              "@type": "Person",
+              "name": "Avi Jaiswal",
+              "sameAs": "https://www.instagram.com/avi_jaiswal009"
+            },
+            {
+              "@type": "Person",
+              "name": "Ishan Srivastav",
+              "sameAs": "https://www.instagram.com/_ishan_sri_"
+            }
+          ]
+        },
+        {
+          "@type": "Organization",
+          "name": "Orion AI Hub",
+          "url": "https://orion-ai-hub.vercel.app",
+          "foundingDate": "2026-06",
+          "foundingLocation": {
+            "@type": "Place",
+            "name": "Gonda, Uttar Pradesh, India"
+          },
+          "sameAs": [
+            "https://www.instagram.com/aaosamjhoai"
+          ],
+          "founders": [
+            { "@type": "Person", "name": "Avi Jaiswal" },
+            { "@type": "Person", "name": "Ishan Srivastav" }
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* ── PAGE-SPECIFIC STYLES ── */
+
+        .about-wrapper {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 3rem 2rem 5rem;
+        }
+
+        /* Hero */
+        .hero-section {
+            text-align: center;
+            padding: 4rem 1rem 3rem;
+            position: relative;
+        }
+        .hero-eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+        .hero-title {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.04em;
+            line-height: 1.15;
+            margin-bottom: 1.25rem;
+        }
+        .hero-title span { color: var(--accent); }
+        .hero-tagline {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            max-width: 560px;
+            margin: 0 auto 2rem;
+            line-height: 1.7;
+        }
+        .hero-meta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .hero-chip {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .hero-chip i { color: var(--accent); }
+
+        /* Divider */
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-card), transparent);
+            margin: 3rem 0;
+        }
+
+        /* Section label */
+        .section-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 1.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-subtle);
+        }
+
+        /* Story */
+        .story-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 16px;
+            padding: 2rem 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .story-card::before {
+            content: '\201C';
+            position: absolute;
+            top: -0.5rem;
+            left: 1.5rem;
+            font-size: 8rem;
+            color: var(--accent);
+            opacity: 0.05;
+            font-family: Georgia, serif;
+            line-height: 1;
+            pointer-events: none;
+        }
+        .story-text {
+            font-size: 0.97rem;
+            color: var(--text-muted);
+            line-height: 1.85;
+        }
+        .story-text p { margin-bottom: 1rem; }
+        .story-text p:last-child { margin-bottom: 0; }
+        .story-highlight {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        /* Founders */
+        .founders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .founder-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: border-color 0.25s, transform 0.25s;
+        }
+        .founder-card:hover {
+            border-color: rgba(56,189,248,0.25);
+            transform: translateY(-3px);
+        }
+
+        .founder-photo-wrap {
+            width: 100%;
+            aspect-ratio: 3/4;
+            overflow: hidden;
+            background: var(--bg-raised);
+            position: relative;
+        }
+        .founder-photo-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            transition: transform 0.4s ease;
+        }
+        .founder-card:hover .founder-photo-wrap img {
+            transform: scale(1.03);
+        }
+        .founder-photo-overlay {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 40%;
+            background: linear-gradient(to top, var(--bg-card), transparent);
+        }
+
+        .founder-info {
+            padding: 1.4rem 1.5rem 1.5rem;
+        }
+        .founder-role {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.4rem;
+        }
+        .founder-name-large {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+            margin-bottom: 0.6rem;
+        }
+        .founder-bio {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.65;
+            margin-bottom: 1.1rem;
+        }
+        .founder-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 1.1rem;
+        }
+        .founder-tag {
+            background: var(--bg-raised);
+            border: 1px solid var(--border-subtle);
+            border-radius: 100px;
+            padding: 0.2rem 0.65rem;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .founder-social {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .social-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: var(--bg-raised);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 0.4rem 0.8rem;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: all 0.15s;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+        }
+        .social-btn:hover {
+            color: var(--accent);
+            border-color: var(--accent-dim);
+            background: var(--accent-glow);
+        }
+        .social-btn i { font-size: 0.85rem; }
+
+        /* Mission */
+        .mission-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .mission-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 1.4rem;
+            transition: border-color 0.2s;
+        }
+        .mission-card:hover { border-color: rgba(56,189,248,0.2); }
+        .mission-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            background: var(--accent-glow);
+            border: 1px solid var(--border-card);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--accent); font-size: 1rem;
+            margin-bottom: 0.9rem;
+        }
+        .mission-card h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 0.4rem;
+            letter-spacing: -0.01em;
+        }
+        .mission-card p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Previous project */
+        .prev-project-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 14px;
+            padding: 1.75rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            transition: border-color 0.2s;
+        }
+        .prev-project-card:hover { border-color: rgba(56,189,248,0.2); }
+        .prev-project-info h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 0.3rem;
+        }
+        .prev-project-info p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        .prev-project-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--accent-glow);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            padding: 0.6rem 1.1rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .prev-project-link:hover {
+            border-color: var(--accent-dim);
+            box-shadow: 0 4px 16px rgba(56,189,248,0.15);
+        }
+
+        /* CTA */
+        .cta-section {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(56,189,248,0.06) 0%, transparent 70%);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+        .cta-section h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.03em;
+            margin-bottom: 0.6rem;
+        }
+        .cta-section p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1.75rem;
+        }
+        .cta-btns {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .cta-primary {
+            background: linear-gradient(135deg, #0369a1, #38bdf8);
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem 1.6rem;
+            color: #020408;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .cta-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(56,189,248,0.3); }
+        .cta-secondary {
+            background: none;
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            padding: 0.8rem 1.6rem;
+            color: var(--text-muted);
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .cta-secondary:hover { color: var(--text-main); border-color: var(--accent-dim); }
+
+        /* Nav bar (standalone, no sidebar) */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(8, 13, 20, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 0.85rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .top-nav-logo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+            letter-spacing: -0.03em;
+        }
+        .top-nav-logo span { color: var(--accent); }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .top-nav-link {
+            padding: 0.4rem 0.85rem;
+            border-radius: 6px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+        .top-nav-link:hover { color: var(--text-main); background: var(--accent-glow); }
+        .top-nav-link.active { color: var(--accent); }
+        .top-nav-cta {
+            background: var(--accent-glow);
+            border: 1px solid var(--border-card);
+            border-radius: 6px;
+            padding: 0.4rem 0.85rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+        .top-nav-cta:hover { border-color: var(--accent-dim); }
+    </style>
+</head>
+<body>
+
+    <!-- Top Nav (About page is standalone, no sidebar) -->
+    <nav class="top-nav">
+        <a href="index.html" class="top-nav-logo">Orion<span>Hub</span></a>
+        <div class="top-nav-links">
+            <a href="index.html" class="top-nav-link">App</a>
+            <a href="about.html" class="top-nav-link active">About</a>
+            <a href="index.html" class="top-nav-cta"><i class="fa-solid fa-bolt" style="font-size:0.75rem;"></i> Try Free</a>
+        </div>
+    </nav>
+
+    <div class="about-wrapper">
+
+        <!-- ── HERO ── -->
+        <section class="hero-section">
+            <div class="hero-eyebrow">// our_story.init</div>
+            <h1 class="hero-title">Built by students.<br><span>For the next generation.</span></h1>
+            <p class="hero-tagline">Two teenagers from a small city in UP who got frustrated with expensive, complicated AI tools — and decided to build something better.</p>
+            <div class="hero-meta">
+                <span class="hero-chip"><i class="fa-solid fa-location-dot"></i> Gonda, Uttar Pradesh</span>
+                <span class="hero-chip"><i class="fa-solid fa-calendar"></i> Founded June 2026</span>
+                <span class="hero-chip"><i class="fa-solid fa-rocket"></i> Orion AI Hub</span>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- ── STORY ── -->
+        <div class="section-label">// origin_story</div>
+        <div class="story-card">
+            <div class="story-text">
+                <p>It started late at night. <span class="story-highlight">Avi was frustrated</span> — he and Ishan were building their first website, <em>Aao Samjho AI</em>, and kept running into the same problem: every good AI tool was either too expensive, too complicated, or simply not built for Indian creators and students.</p>
+                <p>The idea hit him at that moment. Not a tool for big corporates. <span class="story-highlight">A premium AI hub built specifically for the people around them</span> — startup founders writing their first pitch, creators grinding for viral hooks, small businesses trying to sell better online.</p>
+                <p>He called Ishan. Ishan didn't just agree — he <span class="story-highlight">brought more problems to solve</span>. Together, they mapped out every pain point. Avi started coding. Ishan started planning the business. And Orion Hub was born.</p>
+                <p>Two students. One city nobody's heard of. Zero budget. <span class="story-highlight">Pure execution.</span></p>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- ── FOUNDERS ── -->
+        <div class="section-label">// meet_the_founders</div>
+        <div class="founders-grid">
+
+            <!-- Avi -->
+            <div class="founder-card">
+                <div class="founder-photo-wrap">
+                    <img src="avi.jpg" alt="Avi Jaiswal — Co-Founder & Developer, Orion AI Hub">
+                    <div class="founder-photo-overlay"></div>
+                </div>
+                <div class="founder-info">
+                    <div class="founder-role">Co-Founder & Developer</div>
+                    <div class="founder-name-large">Avi Jaiswal</div>
+                    <p class="founder-bio">Class 11 student at Geeta International School, Gonda. The brain behind Orion Hub — from the original idea to every line of code. Avi builds the product, solves the hard problems, and pushes the technical limits of what a student can ship.</p>
+                    <div class="founder-tags">
+                        <span class="founder-tag">Class 11</span>
+                        <span class="founder-tag">Full-Stack Dev</span>
+                        <span class="founder-tag">Gonda, UP</span>
+                        <span class="founder-tag">Geeta Intl. School</span>
+                    </div>
+                    <div class="founder-social">
+                        <a href="https://www.instagram.com/avi_jaiswal009" target="_blank" rel="noopener" class="social-btn">
+                            <i class="fa-brands fa-instagram"></i> Instagram
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ishan -->
+            <div class="founder-card">
+                <div class="founder-photo-wrap">
+                    <img src="ishan.jpg" alt="Ishan Srivastav — Co-Founder & Business Head, Orion AI Hub">
+                    <div class="founder-photo-overlay"></div>
+                </div>
+                <div class="founder-info">
+                    <div class="founder-role">Co-Founder & Business Head</div>
+                    <div class="founder-name-large">Ishan Srivastav</div>
+                    <p class="founder-bio">First-year college student, alumni of Geeta International School. Ishan took the raw idea and gave it a business backbone — managing the web, payments, client relations, and everything that keeps Orion running beyond the code.</p>
+                    <div class="founder-tags">
+                        <span class="founder-tag">College 1st Year</span>
+                        <span class="founder-tag">Business & Ops</span>
+                        <span class="founder-tag">Gonda, UP</span>
+                        <span class="founder-tag">Geeta Intl. School</span>
+                    </div>
+                    <div class="founder-social">
+                        <a href="https://www.instagram.com/_ishan_sri_" target="_blank" rel="noopener" class="social-btn">
+                            <i class="fa-brands fa-instagram"></i> Instagram
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- ── MISSION ── -->
+        <div class="section-label">// what_we_stand_for</div>
+        <div class="mission-grid">
+            <div class="mission-card">
+                <div class="mission-icon"><i class="fa-solid fa-bolt"></i></div>
+                <h4>Free to Start</h4>
+                <p>Everyone gets 5 free trials — no credit card, no signup wall. Try before you pay.</p>
+            </div>
+            <div class="mission-card">
+                <div class="mission-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                <h4>India-First Pricing</h4>
+                <p>Plans starting at ₹350/week. Built for Indian creators, not Silicon Valley budgets.</p>
+            </div>
+            <div class="mission-card">
+                <div class="mission-icon"><i class="fa-solid fa-brain"></i></div>
+                <h4>Actually Useful</h4>
+                <p>Every tool is built around a real problem — not a demo. Pitch decks, hooks, listings, emails.</p>
+            </div>
+            <div class="mission-card">
+                <div class="mission-icon"><i class="fa-solid fa-users"></i></div>
+                <h4>Built by Peers</h4>
+                <p>We're students building for students, creators, and first-time founders. We know the struggle.</p>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- ── PREVIOUS PROJECT ── -->
+        <div class="section-label">// where_it_all_started</div>
+        <div class="prev-project-card">
+            <div class="prev-project-info">
+                <h4>Aao Samjho AI</h4>
+                <p>Our first project — the website that sparked the idea for Orion Hub. The frustration we felt building this became the fuel that started everything.</p>
+            </div>
+            <a href="https://aao-samjho-app.vercel.app/" target="_blank" rel="noopener" class="prev-project-link">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Visit Site
+            </a>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- ── CTA ── -->
+        <div class="cta-section">
+            <h3>Ready to try Orion Hub?</h3>
+            <p>5 free queries. No signup needed. Just your email.</p>
+            <div class="cta-btns">
+                <a href="index.html" class="cta-primary">
+                    <i class="fa-solid fa-bolt"></i> Try for Free
+                </a>
+                <a href="https://www.instagram.com/aaosamjhoai" target="_blank" rel="noopener" class="cta-secondary">
+                    <i class="fa-brands fa-instagram"></i> Follow Us
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "About Us — Orion AI Hub",
+      "description": "Meet Avi Jaiswal and Ishan Srivastav, the teenage founders from Gonda, UP who built Orion AI Hub.",
+      "url": "https://orion-ai-hub.vercel.app/about.html",
+      "mainEntity": {
+        "@type": "Organization",
+        "name": "Orion AI Hub",
+        "foundingDate": "2026-06",
+        "foundingLocation": "Gonda, Uttar Pradesh, India"
+      }
+    }
+    </script>
+</body>
+</html>

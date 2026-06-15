@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feedback — Orion Hub</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand"><i class="fa-solid fa-meteor"></i> Orion Hub</div>
+
+        <a class="nav-item" href="index.html"><i class="fa-solid fa-rocket"></i> Back to App</a>
+        <button class="nav-item active"><i class="fa-solid fa-comment-dots"></i> Feedback</button>
+
+        <div class="sidebar-footer">
+            <a class="sidebar-link" href="about.html"><i class="fa-solid fa-circle-info"></i> About</a>
+            <a class="sidebar-link" href="terms.html"><i class="fa-solid fa-file-contract"></i> Terms</a>
+            <a class="sidebar-link" href="privacy.html"><i class="fa-solid fa-shield-halved"></i> Privacy</a>
+            <span class="sidebar-link" onclick="triggerSupport()"><i class="fa-solid fa-headset"></i> Support</span>
+            <span class="sidebar-link" onclick="logoutUser()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</span>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <div class="topbar">
+            <h1>Feedback</h1>
+        </div>
+
+        <section class="panel">
+            <p style="color:var(--text-dim); font-size:14px; margin-bottom:16px;">
+                We read every message. Let us know what's working, what's broken, or what you'd like to see next.
+            </p>
+
+            <div class="field">
+                <label for="feedbackEmail">Your Email</label>
+                <input type="email" id="feedbackEmail" placeholder="you@example.com" readonly>
+            </div>
+
+            <div class="field">
+                <label for="feedbackRating">Rating</label>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn btn-secondary rating-btn" data-rating="5" onclick="selectRating(5)"><i class="fa-solid fa-star"></i> Great</button>
+                    <button class="btn btn-secondary rating-btn" data-rating="3" onclick="selectRating(3)"><i class="fa-solid fa-star-half-stroke"></i> Okay</button>
+                    <button class="btn btn-secondary rating-btn" data-rating="1" onclick="selectRating(1)"><i class="fa-regular fa-star"></i> Poor</button>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="feedbackMessage">Your Message</label>
+                <textarea id="feedbackMessage" placeholder="Tell us what you think..."></textarea>
+            </div>
+
+            <button class="btn btn-block" id="feedbackSubmitBtn" onclick="submitFeedbackPage()">
+                <i class="fa-solid fa-paper-plane"></i> Send Feedback
+            </button>
+        </section>
+
+    </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="auth.js"></script>
+<script src="script.js"></script>
+<script src="feedback.js"></script>
+</body>
+</html>

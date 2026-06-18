@@ -1,0 +1,405 @@
+/* ═══════════════════════════════════════════════════════
+   ORION HUB — mobile.css
+   Full mobile-responsive layer. Add <link rel="stylesheet"
+   href="mobile.css"> AFTER style.css in index.html.
+   ═══════════════════════════════════════════════════════ */
+
+/* ── HIDE AMBIENT CANVAS ON MOBILE (perf) ── */
+@media (max-width: 768px) {
+  #liveAmbienceCanvas { display: none !important; }
+}
+
+/* ══════════════════════════════════════════════
+   MOBILE BOTTOM NAV BAR  (replaces icon sidebar)
+   ══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* ── Reset app shell to vertical stack ── */
+  .app-shell {
+    flex-direction: column;
+    min-height: 100dvh;          /* dynamic viewport height */
+  }
+
+  /* ── Hide the left sidebar entirely ── */
+  .nav-sidebar {
+    display: none !important;
+  }
+
+  /* ── Hide history panel (drawer handled separately) ── */
+  .history-panel {
+    display: none !important;
+  }
+
+  /* ── Main content fills full width ── */
+  .main-content,
+  .main-content.history-collapsed {
+    margin-left: 0 !important;
+    width: 100%;
+    padding-bottom: 72px;        /* room for bottom nav */
+  }
+
+  /* ── Fixed bottom navigation bar ── */
+  .mobile-nav-bar {
+    display: flex !important;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: rgba(10, 12, 22, 0.97);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 0.5px solid rgba(255,255,255,0.09);
+    z-index: 200;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 4px;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    flex: 1;
+    height: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(255,255,255,0.35);
+    font-size: 10px;
+    font-family: inherit;
+    transition: color 0.15s;
+    padding: 6px 2px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-nav-item i {
+    font-size: 18px;
+    transition: color 0.15s, transform 0.15s;
+  }
+
+  .mobile-nav-item span {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .mobile-nav-item.active {
+    color: var(--accent);
+  }
+
+  .mobile-nav-item.active i {
+    transform: scale(1.12);
+  }
+
+  /* History icon in bottom nav — amber */
+  .mobile-nav-item.mob-history {
+    color: rgba(245,158,11,0.55);
+  }
+  .mobile-nav-item.mob-history.active {
+    color: #fbbf24;
+  }
+
+  /* Settings icon in bottom nav */
+  .mobile-nav-item.mob-settings {
+    color: rgba(255,255,255,0.35);
+  }
+  .mobile-nav-item.mob-settings.active {
+    color: var(--accent);
+  }
+
+  /* ── Slide-up history drawer ── */
+  .mobile-history-drawer {
+    display: block !important;
+    position: fixed;
+    bottom: 60px; left: 0; right: 0;
+    height: 55vh;
+    background: #0e0e18;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px 18px 0 0;
+    z-index: 150;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-history-drawer.open {
+    transform: translateY(0);
+  }
+
+  .drawer-handle {
+    width: 36px; height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    margin: 10px auto 6px;
+    flex-shrink: 0;
+  }
+
+  .drawer-title {
+    font-size: 13px; font-weight: 600;
+    color: rgba(255,255,255,0.55);
+    padding: 4px 16px 10px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.07);
+    flex-shrink: 0;
+  }
+
+  .drawer-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 12px 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .drawer-scroll::-webkit-scrollbar { display: none; }
+
+  /* ── Drawer backdrop ── */
+  .drawer-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 140;
+  }
+  .drawer-backdrop.visible { display: block; }
+
+  /* ══════════════════════════════════════════
+     HEADER
+     ══════════════════════════════════════════ */
+  .main-header {
+    padding: 14px 16px 12px;
+    position: sticky;
+    top: 0;
+    background: rgba(10, 14, 23, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 50;
+  }
+
+  .greeting-line {
+    font-size: 18px;
+  }
+
+  .greeting-sub {
+    font-size: 11px;
+  }
+
+  .plan-chip {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  .badge {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  /* ══════════════════════════════════════════
+     TAB BAR
+     ══════════════════════════════════════════ */
+  .tab-bar {
+    padding: 10px 16px 8px;
+  }
+
+  .tab-bar h1 {
+    font-size: 16px;
+  }
+
+  /* ══════════════════════════════════════════
+     MAIN BODY — single column
+     ══════════════════════════════════════════ */
+  .main-body {
+    padding: 14px 14px 20px;
+    max-width: 100%;
+  }
+
+  .panel {
+    padding: 16px;
+    margin-bottom: 14px;
+    border-radius: 14px;
+  }
+
+  /* ══════════════════════════════════════════
+     FORM ELEMENTS
+     ══════════════════════════════════════════ */
+  select, textarea,
+  input[type="text"], input[type="email"] {
+    font-size: 16px !important; /* prevents iOS zoom on focus */
+    padding: 12px 14px;
+  }
+
+  textarea {
+    min-height: 90px;
+  }
+
+  .btn {
+    padding: 13px 20px;
+    font-size: 15px;
+    border-radius: 12px;
+    /* Larger tap targets */
+    min-height: 48px;
+  }
+
+  .btn-sm {
+    padding: 8px 14px;
+    font-size: 12px;
+    min-height: 36px;
+  }
+
+  /* ══════════════════════════════════════════
+     OUTPUT BOX
+     ══════════════════════════════════════════ */
+  .output-box {
+    font-size: 14px;
+    min-height: 100px;
+    word-break: break-word;
+  }
+
+  /* ══════════════════════════════════════════
+     AI THINKING PANEL — compact on mobile
+     ══════════════════════════════════════════ */
+  .ai-thinking-panel {
+    min-height: 0;
+  }
+
+  .ai-metrics {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+  }
+
+  .ai-metric {
+    padding: 8px 8px;
+  }
+
+  .ai-metric-label {
+    font-size: 9px;
+  }
+
+  .ai-metric-val {
+    font-size: 10px;
+  }
+
+  /* ══════════════════════════════════════════
+     SETTINGS MODAL — full screen on mobile
+     ══════════════════════════════════════════ */
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .settings-modal,
+  .settings-modal-lg {
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 92dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Login / paywall modals stay centered */
+  .login-modal,
+  .modal:not(.settings-modal) {
+    border-radius: 18px !important;
+    margin: 0 12px;
+    max-width: calc(100% - 24px);
+  }
+
+  /* Keep login wall centered */
+  #loginWall {
+    align-items: center !important;
+    padding: 16px;
+  }
+
+  .settings-tab-nav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+  }
+  .settings-tab-nav::-webkit-scrollbar { display: none; }
+
+  .settings-tab-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .settings-tab-panel {
+    max-height: none;
+    padding: 14px 16px 100px; /* extra bottom padding for nav bar */
+  }
+
+  .settings-theme-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .settings-ambience-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* ══════════════════════════════════════════
+     TOAST — move above bottom nav
+     ══════════════════════════════════════════ */
+  .toast-container {
+    bottom: 76px;
+    right: 12px;
+    left: 12px;
+    align-items: center;
+  }
+
+  .toast {
+    font-size: 13px;
+    text-align: center;
+    border-radius: 12px;
+    padding: 12px 16px;
+  }
+
+  /* ══════════════════════════════════════════
+     UPLOAD ZONE
+     ══════════════════════════════════════════ */
+  .upload-zone {
+    padding: 20px 16px;
+    font-size: 14px;
+  }
+
+  /* ══════════════════════════════════════════
+     AI CONCEPT CLOUD — wraps nicely
+     ══════════════════════════════════════════ */
+  .ai-concept-cloud {
+    gap: 6px;
+  }
+
+  .ai-concept {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  /* ══════════════════════════════════════════
+     MODAL HEADER ROW
+     ══════════════════════════════════════════ */
+  .modal-header-row {
+    padding: 16px;
+    position: sticky;
+    top: 0;
+    background: var(--bg-panel);
+    z-index: 10;
+  }
+
+  /* ══════════════════════════════════════════
+     PLAN CHIP — hide text on very small screens
+     ══════════════════════════════════════════ */
+  @media (max-width: 360px) {
+    .plan-chip span { display: none; }
+    .plan-chip { padding: 5px 8px; }
+  }
+}
+
+/* Desktop — hide mobile-only elements */
+@media (min-width: 769px) {
+  .mobile-nav-bar { display: none !important; }
+  .mobile-history-drawer { display: none !important; }
+  .drawer-backdrop { display: none !important; }
+}

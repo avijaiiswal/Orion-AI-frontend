@@ -589,6 +589,52 @@ textarea { min-height: 110px; resize: vertical; }
     gap: 6px;
 }
 
+/* ── Captcha + OTP verification step ── */
+.turnstile-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.otp-input {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 10px;
+    padding-left: 18px; /* visually re-centers text against the letter-spacing */
+}
+
+.login-resend {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--text-dim);
+    text-align: center;
+}
+
+#resendCodeLink {
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: 600;
+}
+#resendCodeLink:hover { text-decoration: underline; }
+
+#resendCooldown {
+    color: var(--text-faint);
+}
+
+.login-back {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--text-faint);
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.login-back:hover { color: var(--text-dim); }
+
 .settings-modal {
     text-align: left;
     max-width: 380px;

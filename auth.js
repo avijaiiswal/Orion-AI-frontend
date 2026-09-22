@@ -12,15 +12,36 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 
 const BACKEND = "https://orion-ai-backend.vercel.app/api/analyze";
 
-// ── SEND MAGIC LINK ───────────────────────────────────
-async function sendMagicLink(email) {
+// ── SEND EMAIL VERIFICATION CODE ──────────────────────
+// Sends a 6-digit OTP code to the user's email (NOT a magic link).
+// NOTE: In Supabase Dashboard > Authentication > Email Templates >
+// "Magic Link", the template must reference {{ .Token }} (the 6-digit
+// code) rather than {{ .ConfirmationURL }}, or the email will still
+// show a clickable link instead of a code.
+// captchaToken comes from the Cloudflare Turnstile widget on the page.
+async function sendOtpCode(email, captchaToken) {
     const { error } = await supabaseClient.auth.signInWithOtp({
         email,
         options: {
-            emailRedirectTo: window.location.href.split('?')[0].split('#')[0]
+            shouldCreateUser: true,
+            captchaToken
         }
     });
     if (error) throw error;
+}
+
+// ── VERIFY EMAIL CODE ─────────────────────────────────
+// Exchanges the 6-digit code the user typed in for a real session.
+// On success, Supabase fires the onAuthStateChange("SIGNED_IN", ...)
+// listener automatically — no extra wiring needed.
+async function verifyOtpCode(email, token) {
+    const { data, error } = await supabaseClient.auth.verifyOtp({
+        email,
+        token,
+        type: "email"
+    });
+    if (error) throw error;
+    return data;
 }
 
 // ── GET CURRENT SESSION ───────────────────────────────

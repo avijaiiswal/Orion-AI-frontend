@@ -66,6 +66,14 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
         document.getElementById("loginWall")?.classList.add("visible");
         document.getElementById("userBadge")?.classList.add("hidden");
         updatePlanChip();
+        // Reset the login wall back to the email step for next time
+        document.getElementById("loginStepCode")?.classList.add("hidden");
+        document.getElementById("loginStepEmail")?.classList.remove("hidden");
+        document.getElementById("loginStatusMsg")?.classList.add("hidden");
+        const codeInput = document.getElementById("userOtpCode");
+        if (codeInput) codeInput.value = "";
+        turnstileToken = null;
+        if (window.turnstile) window.turnstile.reset();
     }
 });
 
@@ -120,23 +128,114 @@ function updateGreetingName() {
 }
 
 // ── AUTH ──────────────────────────────────────────────
+let turnstileToken   = null;   // current Cloudflare Turnstile token (single-use)
+let loginEmailForVerify = "";  // email the code was sent to, for the verify step
+let resendCooldownUntil = 0;
+let resendCooldownTimer = null;
+
+// Called by the Turnstile widget (data-callback) once the person passes the check.
+function onLoginCaptchaSuccess(token) {
+    turnstileToken = token;
+}
+// Called if the token expires or errors before it's used.
+function onLoginCaptchaExpired() {
+    turnstileToken = null;
+}
+
 async function triggerDirectLogin() {
     const inputEmail = document.getElementById("userDirectEmail").value.trim();
     if (!inputEmail || !inputEmail.includes("@")) {
         showToast("Valid email address required.");
         return;
     }
+    if (!turnstileToken) {
+        showToast("Please complete the security check first.");
+        return;
+    }
     const btn = document.getElementById("loginBtn");
     if (btn) { btn.disabled = true; btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sending…`; }
     try {
-        await sendMagicLink(inputEmail);
-        showToast(`Magic link sent to ${inputEmail}. Check your inbox.`);
+        await sendOtpCode(inputEmail, turnstileToken);
+        loginEmailForVerify = inputEmail;
+
+        // Move to the code-entry step
+        document.getElementById("loginStepEmail")?.classList.add("hidden");
+        document.getElementById("loginStepCode")?.classList.remove("hidden");
+        const label = document.getElementById("loginCodeEmailLabel");
+        if (label) label.textContent = inputEmail;
+        document.getElementById("userOtpCode")?.focus();
+
+        const statusText = document.getElementById("loginStatusMsgText");
+        if (statusText) statusText.textContent = `Code sent to ${inputEmail}.`;
         document.getElementById("loginStatusMsg")?.classList.remove("hidden");
+
+        startResendCooldown(30);
     } catch (e) {
-        showToast(e.message || "Could not send login link. Try again.");
+        showToast(e.message || "Could not send verification code. Try again.");
     } finally {
-        if (btn) { btn.disabled = false; btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Send Magic Link`; }
+        if (btn) { btn.disabled = false; btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Send Verification Code`; }
+        // Tokens are single-use — always reset so a stale token can't be resubmitted.
+        turnstileToken = null;
+        if (window.turnstile) window.turnstile.reset();
     }
+}
+
+async function triggerVerifyCode() {
+    const code = document.getElementById("userOtpCode").value.trim();
+    if (!/^\d{6}$/.test(code)) {
+        showToast("Enter the 6-digit code from your email.");
+        return;
+    }
+    const btn = document.getElementById("verifyCodeBtn");
+    if (btn) { btn.disabled = true; btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Verifying…`; }
+    try {
+        await verifyOtpCode(loginEmailForVerify, code);
+        // onAuthStateChange("SIGNED_IN", ...) picks up from here automatically.
+    } catch (e) {
+        showToast(e.message || "Invalid or expired code. Please try again.");
+        if (btn) { btn.disabled = false; btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Verify & Continue`; }
+    }
+}
+
+function backToEmailStep() {
+    document.getElementById("loginStepCode")?.classList.add("hidden");
+    document.getElementById("loginStepEmail")?.classList.remove("hidden");
+    document.getElementById("loginStatusMsg")?.classList.add("hidden");
+    const codeInput = document.getElementById("userOtpCode");
+    if (codeInput) codeInput.value = "";
+    turnstileToken = null;
+    if (window.turnstile) window.turnstile.reset();
+}
+
+async function triggerResendCode() {
+    if (Date.now() < resendCooldownUntil) return;
+    showToast("Please verify you're human again to resend the code.");
+    const email = loginEmailForVerify;
+    backToEmailStep();
+    const emailInput = document.getElementById("userDirectEmail");
+    if (emailInput) emailInput.value = email;
+}
+
+function startResendCooldown(seconds) {
+    resendCooldownUntil = Date.now() + seconds * 1000;
+    const link = document.getElementById("resendCodeLink");
+    const cooldownEl = document.getElementById("resendCooldown");
+    if (!link || !cooldownEl) return;
+
+    link.classList.add("hidden");
+    cooldownEl.classList.remove("hidden");
+    cooldownEl.textContent = `Resend available in ${seconds}s`;
+    clearInterval(resendCooldownTimer);
+    resendCooldownTimer = setInterval(() => {
+        const remaining = Math.ceil((resendCooldownUntil - Date.now()) / 1000);
+        if (remaining <= 0) {
+            clearInterval(resendCooldownTimer);
+            cooldownEl.classList.add("hidden");
+            link.classList.remove("hidden");
+        } else {
+            cooldownEl.textContent = `Resend available in ${remaining}s`;
+        }
+    }, 1000);
 }
 
 async function logoutUser() {

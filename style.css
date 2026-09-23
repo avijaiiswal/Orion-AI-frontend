@@ -352,6 +352,7 @@ a { color: var(--accent); text-decoration: none; }
     font-style: bold;
     font-weight: 400;
     color: var(--accent-2);
+    text-transform: uppercase;
 }
 
 .header-right {

@@ -598,10 +598,10 @@ textarea { min-height: 110px; resize: vertical; }
 
 .otp-input {
     text-align: center;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
-    letter-spacing: 10px;
-    padding-left: 18px; /* visually re-centers text against the letter-spacing */
+    letter-spacing: 6px;
+    padding-left: 12px; /* visually re-centers text against the letter-spacing */
 }
 
 .login-resend {

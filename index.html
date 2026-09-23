@@ -431,13 +431,13 @@
     <!-- STEP 1: email + captcha -->
     <div id="loginStepEmail">
       <h2>Connect Secure Node</h2>
-      <p>Enter your email to receive a 6-digit verification code. No passwords required.</p>
+      <p>Enter your email to receive a verification code. No passwords required.</p>
       <div class="field">
         <input type="email" id="userDirectEmail" placeholder="you@example.com" autocomplete="email">
       </div>
       <div class="turnstile-wrap">
         <div class="cf-turnstile"
-             data-sitekey="0x4AAAAAAFAZz6-ZDBKfnLMT"
+             data-sitekey="YOUR_TURNSTILE_SITE_KEY"
              data-theme="dark"
              data-callback="onLoginCaptchaSuccess"
              data-expired-callback="onLoginCaptchaExpired"
@@ -448,13 +448,13 @@
       </button>
     </div>
 
-    <!-- STEP 2: enter the 6-digit code -->
+    <!-- STEP 2: enter the verification code (length varies by Supabase project config) -->
     <div id="loginStepCode" class="hidden">
       <h2>Enter Verification Code</h2>
-      <p>We sent a 6-digit code to <strong id="loginCodeEmailLabel"></strong>.</p>
+      <p>We sent a verification code to <strong id="loginCodeEmailLabel"></strong>.</p>
       <div class="field">
-        <input type="text" id="userOtpCode" class="otp-input" placeholder="000000"
-               inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code">
+        <input type="text" id="userOtpCode" class="otp-input" placeholder="Enter code"
+               inputmode="numeric" pattern="[0-9]*" maxlength="10" autocomplete="one-time-code">
       </div>
       <button class="btn btn-block" id="verifyCodeBtn" onclick="triggerVerifyCode()">
         <i class="fa-solid fa-circle-check"></i> Verify &amp; Continue

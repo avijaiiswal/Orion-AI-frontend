@@ -182,8 +182,10 @@ async function triggerDirectLogin() {
 
 async function triggerVerifyCode() {
     const code = document.getElementById("userOtpCode").value.trim();
-    if (!/^\d{6}$/.test(code)) {
-        showToast("Enter the 6-digit code from your email.");
+    // Supabase's OTP length is a per-project setting (commonly 6, sometimes up
+    // to 10) — accept any reasonable numeric length rather than hardcoding one.
+    if (!/^\d{6,10}$/.test(code)) {
+        showToast("Enter the verification code from your email.");
         return;
     }
     const btn = document.getElementById("verifyCodeBtn");

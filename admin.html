@@ -1,290 +1,817 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orion Hub — Admin Console</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel — Aao Samjho AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0f1e; color: #e2e8f0; font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .header { margin-bottom: 1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+        .header h1 { font-size: 1.7rem; margin-bottom: 0.3rem; }
+        .header p { color: #94a3b8; font-size:0.85rem; }
+        .logout-btn { padding:0.6rem 1rem; background:#1f2937; border:1px solid #374151; border-radius:8px; color:#e2e8f0; cursor:pointer; font-size:0.8rem; font-weight:600; }
+        .logout-btn:hover { background:#ef4444; border-color:#ef4444; }
+
+        .auth-gate { display: none; position: fixed; inset: 0; background: rgba(10,15,30,0.95); z-index: 1000; align-items: center; justify-content: center; }
+        .auth-gate.active { display: flex; }
+        .auth-card { background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 2rem; width: 360px; text-align: center; }
+        .auth-card h2 { margin-bottom: 1rem; }
+        .auth-card input { width: 100%; padding: 0.75rem; margin-bottom: 1rem; background: #1f2937; border: 1px solid #374151; border-radius: 8px; color: #e2e8f0; }
+        .auth-card button { width: 100%; padding: 0.75rem; background: #3b82f6; border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; }
+        .auth-card button:hover { background: #2563eb; }
+
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card { background: #1f2937; border: 1px solid #374151; border-radius: 12px; padding: 1.5rem; }
+        .stat-label { font-size: 0.85rem; color: #9ca3af; margin-bottom: 0.5rem; }
+        .stat-value { font-size: 1.5rem; font-weight: 700; color: #60a5fa; }
+
+        /* Tabs */
+        .tabs { display:flex; gap:6px; margin-bottom:1.5rem; overflow-x:auto; padding-bottom:4px; }
+        .tab-btn { flex-shrink:0; padding:0.6rem 1rem; background:#111827; border:1px solid #1f2937; border-radius:10px; color:#94a3b8; cursor:pointer; font-size:0.82rem; font-weight:600; font-family:'Inter',sans-serif; white-space:nowrap; }
+        .tab-btn.active { background:linear-gradient(135deg,#4f8ef7,#a78bfa); color:#fff; border-color:transparent; }
+        .tab-panel { display:none; }
+        .tab-panel.active { display:block; }
+
+        .keys-section, .asec { background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom:1.2rem; }
+        .keys-section h2, .asec-title { margin-bottom: 1rem; font-size:1.05rem; }
+        .asec-title { font-weight:700; }
+        .asec-note { font-size:0.75rem; color:#f59e0b; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25); border-radius:8px; padding:10px 12px; margin-bottom:14px; line-height:1.6; }
+
+        .add-key { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 0.75rem; margin-bottom: 2rem; }
+        .add-key input, .add-key select { padding: 0.75rem; background: #1f2937; border: 1px solid #374151; border-radius: 8px; color: #e2e8f0; }
+        .add-key button { padding: 0.75rem 1.5rem; background: #10b981; border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; }
+        .add-key button:hover { background: #059669; }
+        @media (max-width:700px){ .add-key{ grid-template-columns:1fr; } }
+
+        .keys-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .key-item { background: #1f2937; border: 1px solid #374151; border-radius: 8px; padding: 1rem; display: flex; align-items: center; justify-content: space-between; gap:1rem; flex-wrap:wrap; }
+        .key-item.inactive { opacity: 0.6; }
+        .key-info { flex: 1; min-width:180px; }
+        .key-model { font-size: 0.85rem; color: #9ca3af; }
+        .key-key { font-family: monospace; font-size: 0.85rem; color: #60a5fa; word-break: break-all; }
+        .key-usage { color: #9ca3af; font-size: 0.85rem; margin-top: 0.25rem; }
+        .key-actions { display: flex; gap: 0.5rem; }
+        .key-actions button { padding: 0.5rem 0.75rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+        .btn-toggle { background: #f59e0b; color: white; }
+        .btn-reset { background: #3b82f6; color: white; }
+        .btn-delete { background: #ef4444; color: white; }
+        .btn-toggle:hover, .btn-reset:hover, .btn-delete:hover { opacity: 0.9; }
+
+        /* Ported from the in-app admin panel */
+        .ainput,.asel{width:100%;background:#0c1020;border:1px solid #2d5a8a;border-radius:10px;padding:10px 12px;color:#f0f4ff;font-family:'Inter',sans-serif;font-size:0.85rem;margin-bottom:8px;outline:none;box-sizing:border-box}
+        .abtn{padding:9px 16px;background:linear-gradient(135deg,#4f8ef7,#a78bfa);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap}
+        .abtn.danger{background:#ef4444}
+        .abtn.full{width:100%}
+        .atable{width:100%;border-collapse:collapse;font-size:0.8rem}
+        .atable th{text-align:left;color:#8899bb;font-weight:600;padding:8px;border-bottom:1px solid #2d5a8a;font-size:0.72rem;text-transform:uppercase}
+        .atable td{padding:8px;border-bottom:1px solid #1a3a52}
+        .rpill{padding:3px 9px;border-radius:6px;font-size:0.7rem;font-weight:700}
+        .rpa{background:rgba(79,142,247,0.15);color:#7eb3ff}
+        .rpt{background:rgba(167,139,250,0.15);color:#c4b5fd}
+        .trow2{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1a3a52}
+        .trow2:last-child{border-bottom:none}
+        .tlbl{font-size:0.85rem;color:#e2e8f0}
+        .tog{width:40px;height:22px;background:#1f2937;border-radius:20px;position:relative;cursor:pointer;transition:background 0.2s}
+        .tog.on{background:#4f8ef7}
+        .tog::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform 0.2s}
+        .tog.on::after{transform:translateX(18px)}
+        .code-blk{background:#0c1020;border:1px solid #2d5a8a;border-radius:10px;overflow:hidden}
+        .code-hdr{padding:8px 12px;background:#111827;border-bottom:1px solid #2d5a8a;font-size:0.75rem;color:#8899bb;display:flex;justify-content:space-between}
+        .code-blk pre{padding:12px;font-size:0.72rem;color:#7eb3ff;overflow-x:auto;white-space:pre-wrap}
+
+        .toast { position: fixed; bottom: 2rem; right: 2rem; background: #1f2937; border: 1px solid #374151; border-radius: 8px; padding: 1rem 1.5rem; color: #e2e8f0; z-index: 999; animation: slideIn 0.3s ease; max-width:320px; }
+        @keyframes slideIn { from { transform: translateX(400px); } to { transform: translateX(0); } }
+    </style>
 </head>
 <body>
 
-<div class="app-shell">
-    <aside class="sidebar">
-        <div class="brand"><i class="fa-solid fa-user-secret"></i> Orion Admin</div>
-        <a class="sidebar-link" href="index.html"><i class="fa-solid fa-arrow-left"></i> Back to App</a>
-        <span class="sidebar-link" onclick="logoutUser()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</span>
-    </aside>
-
-    <main class="main">
-        <div class="topbar">
-            <h1>Admin Console</h1>
-            <div class="badge hidden" id="userBadge"><span id="badgeText"></span></div>
-        </div>
-
-        <!-- API KEYS -->
-        <section class="panel">
-            <label>API Keys</label>
-            <table>
-                <thead>
-                    <tr><th>Provider</th><th>Key</th><th>Status</th><th>Usage</th><th>Actions</th></tr>
-                </thead>
-                <tbody id="keysTableBody"></tbody>
-            </table>
-
-            <div style="margin-top:16px; display:flex; gap:8px; flex-wrap:wrap;">
-                <select id="newKeyProvider" style="max-width:140px;">
-                    <option value="gemini">gemini</option>
-                    <option value="groq">groq</option>
-                    <option value="openai">openai</option>
-                </select>
-                <input type="text" id="newKeyValue" placeholder="API key value" style="flex:1; min-width:200px;">
-                <button class="btn" onclick="addKey()"><i class="fa-solid fa-plus"></i> Add Key</button>
-            </div>
-        </section>
-
-        <!-- PRICING -->
-        <section class="panel">
-            <label>Pricing Config</label>
-            <div class="field"><label>Weekly Price (₹)</label><input type="number" id="cfgWeekly"></div>
-            <div class="field"><label>Monthly Base (₹)</label><input type="number" id="cfgMonthlyBase"></div>
-            <div class="field"><label>Monthly Discount (%)</label><input type="number" id="cfgMonthlyDiscount"></div>
-            <div class="field"><label>Yearly Base (₹)</label><input type="number" id="cfgYearlyBase"></div>
-            <div class="field"><label>Yearly Discount (%)</label><input type="number" id="cfgYearlyDiscount"></div>
-            <button class="btn" onclick="updatePricing()"><i class="fa-solid fa-floppy-disk"></i> Save Pricing</button>
-        </section>
-
-        <!-- UPGRADE USER -->
-        <section class="panel">
-            <label>Upgrade User Plan</label>
-            <div class="field"><label>User Email</label><input type="email" id="upgradeEmail" placeholder="user@example.com"></div>
-            <div class="field">
-                <label>Plan</label>
-                <select id="upgradePlan">
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="ultimate">Ultimate</option>
-                    <option value="admin">Admin</option>
-                </select>
-            </div>
-            <button class="btn" onclick="upgradeUser()"><i class="fa-solid fa-arrow-up"></i> Apply Upgrade</button>
-        </section>
-
-        <!-- FEEDBACK -->
-        <section class="panel">
-            <label>Recent Feedback</label>
-            <table>
-                <thead><tr><th>Email</th><th>Rating</th><th>Comment</th><th>Date</th></tr></thead>
-                <tbody id="feedbackTableBody"></tbody>
-            </table>
-        </section>
-    </main>
-</div>
-
-<div class="modal-overlay" id="accessDenied">
-    <div class="modal">
-        <div class="modal-icon"><i class="fa-solid fa-ban"></i></div>
-        <h2>Access Denied</h2>
-        <p>This page is restricted to Orion administrators.</p>
-        <a class="btn btn-block" href="index.html">Return to App</a>
+<!-- Auth Gate -->
+<div class="auth-gate active" id="authGate">
+    <div class="auth-card">
+        <h2>🔐 Admin Login</h2>
+        <input type="email" id="adminEmail" placeholder="Email" onkeydown="if(event.key==='Enter')document.getElementById('adminPass').focus()">
+        <input type="password" id="adminPass" placeholder="Password" onkeydown="if(event.key==='Enter')login()">
+        <button onclick="login()">Login</button>
     </div>
 </div>
 
-<div class="toast-container" id="toastContainer"></div>
+<!-- Main Content -->
+<div class="container" id="mainContent" style="display:none;">
+    <div class="header">
+        <div>
+            <h1>🎓 Aao Samjho AI — Admin Panel</h1>
+            <p id="whoami">Manage everything from one place</p>
+        </div>
+        <button class="logout-btn" onclick="logoutAdmin()">Logout</button>
+    </div>
 
-<script src="auth.js"></script>
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="keys" onclick="showTab('keys')">🔑 API Keys</button>
+        <button class="tab-btn" data-tab="students" onclick="showTab('students')">📊 Students</button>
+        <button class="tab-btn" data-tab="teachers" onclick="showTab('teachers')">👨‍🏫 Teachers</button>
+        <button class="tab-btn" data-tab="subjects" onclick="showTab('subjects')">📚 Subjects & Chapters</button>
+        <button class="tab-btn" data-tab="video" onclick="showTab('video')">🎬 AI Video Generator</button>
+        <button class="tab-btn" data-tab="broadcast" onclick="showTab('broadcast')">📢 Broadcast</button>
+        <button class="tab-btn" data-tab="settings" onclick="showTab('settings')">⚙️ Settings</button>
+    </div>
+
+    <!-- TAB: API KEYS -->
+    <div class="tab-panel active" id="tab-keys">
+        <div class="stats" id="stats">
+            <div class="stat-card"><div class="stat-label">Total Keys</div><div class="stat-value" id="statTotal">—</div></div>
+            <div class="stat-card"><div class="stat-label">Active</div><div class="stat-value" id="statActive">—</div></div>
+            <div class="stat-card"><div class="stat-label">Total Uses</div><div class="stat-value" id="statUses">—</div></div>
+        </div>
+
+        <div class="keys-section">
+            <h2>➕ Add New API Key</h2>
+            <div class="add-key">
+                <select id="newModel">
+                    <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                    <option value="gemini-2.0-flash-exp">gemini-2.0-flash-exp</option>
+                    <option value="gemini-2.0-pro">gemini-2.0-pro</option>
+                    <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                    <option value="gemini-1.5-flash-8b">gemini-1.5-flash-8b</option>
+                    <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                    <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                    <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+                </select>
+                <input type="password" id="newKey" placeholder="Paste API Key here">
+                <button onclick="addKey()">Add Key</button>
+            </div>
+
+            <h2 style="margin-top: 1.5rem; margin-bottom: 1rem;">🔑 Active Keys</h2>
+            <div class="keys-list" id="keysList"><p style="text-align:center;color:#9ca3af;">Loading keys…</p></div>
+        </div>
+    </div>
+
+    <!-- TAB: STUDENTS -->
+    <div class="tab-panel" id="tab-students">
+        <div class="asec">
+            <div class="asec-title" id="students-title">📊 Students</div>
+            <div style="overflow-x:auto">
+                <table class="atable" id="students-table">
+                    <tr><th>Name</th><th>Class</th><th>Board</th><th>Chapters</th><th>Tests</th><th>Joined</th><th>Action</th></tr>
+                    <tr><td colspan="7" style="text-align:center;padding:16px;color:#8899bb">Loading…</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: TEACHERS -->
+    <div class="tab-panel" id="tab-teachers">
+        <div class="asec">
+            <div class="asec-title">👨‍🏫 Teachers & Access</div>
+            <div class="asec-note">⚠️ Owner admin accounts (set via ADMIN_EMAIL/ADMIN2_EMAIL/etc. in the backend's environment variables) aren't stored in Supabase, so they can't be listed here automatically — only teachers added below (stored in the students table with role "teacher") are shown.</div>
+            <table class="atable" id="teachers-table">
+                <tr><th>Name</th><th>Email</th><th>Role</th><th>Action</th></tr>
+                <tr><td colspan="4" style="text-align:center;padding:16px;color:#8899bb">Loading…</td></tr>
+            </table>
+            <div style="margin-top:12px;padding-top:10px;border-top:1px solid #1a3a52">
+                <div style="font-size:0.72rem;font-weight:600;color:#94a3b8;margin-bottom:8px">+ New Teacher</div>
+                <input class="ainput" id="nt-n" placeholder="Naam">
+                <input class="ainput" id="nt-e" placeholder="Email">
+                <input class="ainput" id="nt-p" type="password" placeholder="Password">
+                <button class="abtn" onclick="addTeacher()">Add Teacher</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: SUBJECTS & CHAPTERS -->
+    <div class="tab-panel" id="tab-subjects">
+        <div class="asec" style="border-color:rgba(34,197,94,0.25)">
+            <div class="asec-title" style="color:#22c55e">📚 Subjects & Chapters Manage Karo</div>
+            <div class="asec-note" style="color:#22c55e;background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.25)">✅ Now synced via Supabase (see <code>subjects_table_migration.sql</code>) — chapters/subjects added here show up for every student, not just this browser. If you'd previously added chapters here before this fix, they were stuck in this browser's local storage — click below to push them up now.</div>
+            <button class="abtn" style="margin-bottom:12px;background:#1f2937;border:1px solid #374151" onclick="migrateLocalSubjects()">⬆️ Push this browser's local chapters to Supabase (one-time)</button>
+
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+                <select class="asel" id="adm-board" style="flex:1;margin:0" onchange="loadAdminSubjects()">
+                    <option value="cbse">CBSE</option>
+                    <option value="state">State Board</option>
+                </select>
+                <select class="asel" id="adm-cls" style="flex:1;margin:0" onchange="loadAdminSubjects()">
+                    <option value="9">Class 9</option>
+                    <option value="10">Class 10</option>
+                </select>
+            </div>
+
+            <select class="asel" id="adm-subj" onchange="loadAdminChapters()">
+                <option value="">-- Subject chuno --</option>
+            </select>
+
+            <div id="adm-chapters-list" style="margin-bottom:10px"></div>
+
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+                <input class="ainput" id="new-chapter-inp" placeholder="Chapter ka naam likho..." style="flex:1;margin:0" onkeydown="if(event.key==='Enter')addChapter()">
+                <button class="abtn" onclick="addChapter()">+ Add</button>
+            </div>
+
+            <div style="padding-top:12px;border-top:1px solid #1a3a52;margin-top:4px">
+                <div style="font-size:0.72rem;font-weight:600;color:#94a3b8;margin-bottom:8px">➕ Naya Subject Add Karo</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <input class="ainput" id="new-subj-name" placeholder="Subject naam" style="flex:1;min-width:120px;margin:0">
+                    <input class="ainput" id="new-subj-emoji" placeholder="Emoji" style="width:70px;margin:0">
+                    <button class="abtn" onclick="addSubject()">+ Subject</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: AI VIDEO GENERATOR -->
+    <div class="tab-panel" id="tab-video">
+        <div class="asec" style="border-color:rgba(79,142,247,0.2);background:rgba(79,142,247,0.02)">
+            <div class="asec-title" style="color:#a78bfa">🎬 AI Video Generator (3Blue1Brown Style)</div>
+            <div style="font-size:0.75rem;color:#94a3b8;margin-bottom:10px">Topic daalo → Manim animation code → Google Colab mein run karo → YouTube video!</div>
+            <select class="asel" id="vg-s"><option>Mathematics</option><option>Science</option><option>English</option><option>Hindi</option><option>Social Science</option></select>
+            <input class="ainput" id="vg-t" placeholder="Chapter/Topic (e.g. Quadratic Equations)">
+            <select class="asel" id="vg-l"><option value="hinglish">Hinglish</option><option value="english">English</option></select>
+            <button class="abtn full" id="vg-btn" onclick="genVid()">🎬 Generate Animation Code</button>
+            <div id="vg-out" style="display:none;margin-top:10px">
+                <div style="display:flex;gap:6px;margin-bottom:7px;flex-wrap:wrap">
+                    <button class="abtn" onclick="navigator.clipboard.writeText(document.getElementById('vg-code').textContent).then(()=>showToast('📋 Copied!'))">📋 Code Copy</button>
+                    <button class="abtn" onclick="window.open('https://colab.research.google.com/#create=true','_blank')">🚀 Google Colab</button>
+                    <button class="abtn" onclick="navigator.clipboard.writeText(document.getElementById('vg-sc').innerText).then(()=>showToast('📝 Copied!'))">📝 Script Copy</button>
+                </div>
+                <div class="code-blk"><div class="code-hdr"><span>🐍 manim_video.py</span><span style="color:#4f8ef7">Manim CE</span></div><pre id="vg-code"></pre></div>
+                <div class="code-blk" style="margin-top:7px"><div class="code-hdr">🎤 Voiceover Script</div><div id="vg-sc" style="padding:10px;font-size:0.75rem;color:#c7d6f5;line-height:1.7;max-height:160px;overflow-y:auto"></div></div>
+                <div style="margin-top:8px;padding:10px;background:rgba(249,115,22,0.05);border:1px solid rgba(249,115,22,0.18);border-radius:8px;font-size:0.7rem;color:#c7d6f5;line-height:1.8">
+                    <b style="color:#f97316">Steps:</b> 1️⃣ Code Copy → 2️⃣ Google Colab kholo → 3️⃣ New cell: <code style="background:rgba(0,0,0,0.3);padding:1px 4px;border-radius:3px;color:#7dd3fc">!pip install manim</code> → 4️⃣ Code paste → Run → 5️⃣ MP4 download → YouTube! 🎉
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: BROADCAST -->
+    <div class="tab-panel" id="tab-broadcast">
+        <div class="asec">
+            <div class="asec-title">📢 Broadcast to Students</div>
+            <div style="font-size:0.75rem;color:#94a3b8;margin-bottom:10px">Shows as a dismissible banner on every student's home page (auto-hides after 7 days).</div>
+            <input class="ainput" id="bc-s" placeholder="Subject">
+            <textarea class="ainput" id="bc-m" style="min-height:70px;resize:vertical" placeholder="Message..."></textarea>
+            <button class="abtn" onclick="broadcast()">📤 Send</button>
+        </div>
+    </div>
+
+    <!-- TAB: SETTINGS -->
+    <div class="tab-panel" id="tab-settings">
+        <div class="asec" style="border-color:rgba(79,142,247,0.25)">
+            <div class="asec-title">🔑 Backup AI Key (students ko nahi dikhta)</div>
+            <div class="asec-note">This is only a fallback — the real key management with multi-key rotation and usage tracking is the "API Keys" tab. This backup key is only used by the student app if the backend is temporarily unreachable.</div>
+            <div style="display:flex;gap:7px">
+                <input class="ainput" type="password" id="api-inp" placeholder="Koi bhi key: Gemini(AIza), OpenAI(sk-), Groq(gsk_), Claude(sk-ant-), OpenRouter(sk-or-)" style="flex:1;margin:0">
+                <button class="abtn" onclick="saveKey()">Save</button>
+                <button class="abtn danger" onclick="clearKey()">Clear</button>
+            </div>
+            <div id="backup-key-status" style="font-size:0.68rem;color:#64748b;margin-top:5px"></div>
+        </div>
+
+        <div class="asec">
+            <div class="asec-title">⚙️ App Settings</div>
+            <div class="asec-note">⚠️ Carried over as-is from the in-app version: these toggles are visual only — they don't read or save any actual value, so they reset on every page load and don't currently affect app behavior. Ask if you'd like these wired up to a real settings table.</div>
+            <div class="trow2"><span class="tlbl">Student Signup Open</span><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="trow2"><span class="tlbl">AI Tutor Enabled</span><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="trow2"><span class="tlbl">AI Test Generation</span><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="trow2"><span class="tlbl">Notes Download</span><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+        </div>
+    </div>
+</div>
+
 <script>
-const ORION_ADMINS = [
-    "avijaiswal10052009@gmail.com",
-    "Anonymousperson1508@gmail.com"
-];
+// ══════════════════════════════════════════
+// CONFIG — self-contained (no dependency on the student app's config.js,
+// so this panel can be deployed/hosted completely separately if needed)
+// ══════════════════════════════════════════
+const API = 'https://aao-samjho-backend.vercel.app/api';
+const SB_URL = 'https://rtdnpynbjcvemrzesslp.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0ZG5weW5iamN2ZW1yemVzc2xwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NTM5NTgsImV4cCI6MjA5NTUyOTk1OH0.q3q_6Rb702dDpoF8mIAbiyDPlh5BPTnE487opTuXyjk';
+let token = localStorage.getItem('adminToken');
+let CU = JSON.parse(localStorage.getItem('adminUser') || 'null');
+
+async function sb(table, method = 'GET', body = null, filter = '') {
+  const url = `${SB_URL}/rest/v1/${table}${filter}`;
+  const opts = { method, headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': method === 'POST' ? 'return=representation' : '' } };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
+  if (!r.ok) throw new Error(await r.text());
+  return method === 'DELETE' ? null : r.json();
+}
+const sbGet = (table, filter = '') => sb(table, 'GET', null, filter);
+const sbPost = (table, body) => sb(table, 'POST', body);
+const sbPatch = (table, body, filter) => sb(table, 'PATCH', body, filter);
+const sbDelete = (table, filter) => sb(table, 'DELETE', null, filter);
+
+function escapeHtml(text) {
+  return String(text ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Subjects — FIX-pending: localStorage-only, see the warning banner in the
+// Subjects & Chapters tab above. Kept identical to config.js's version so
+// behavior matches the student app exactly (same storage key format).
+const DEFAULT_SUBJECTS = {
+  cbse: {
+    9: [
+      { id: 'math9',  name: 'Mathematics',   emoji: '🔢', color: '#22c55e' },
+      { id: 'phy9',   name: 'Physics',        emoji: '⚡', color: '#4f8ef7' },
+      { id: 'chem9',  name: 'Chemistry',      emoji: '🧪', color: '#06b6d4' },
+      { id: 'bio9',   name: 'Biology',        emoji: '🧬', color: '#22c55e' },
+      { id: 'eng9',   name: 'English',        emoji: '📚', color: '#eab308' },
+      { id: 'hin9',   name: 'Hindi',          emoji: '✍️', color: '#a78bfa' },
+      { id: 'sst9',   name: 'Social Science', emoji: '🌍', color: '#f97316' }
+    ],
+    10: [
+      { id: 'math10', name: 'Mathematics',   emoji: '🔢', color: '#22c55e' },
+      { id: 'sci10',  name: 'Science',        emoji: '🔬', color: '#4f8ef7' },
+      { id: 'eng10',  name: 'English',        emoji: '📚', color: '#eab308' },
+      { id: 'hin10',  name: 'Hindi',          emoji: '✍️', color: '#a78bfa' },
+      { id: 'sst10',  name: 'Social Science', emoji: '🌍', color: '#f97316' }
+    ]
+  },
+  state: {
+    9:  [{ id: 'st9',  name: 'Coming Soon', emoji: '🗺️', color: '#94a3b8' }],
+    10: [{ id: 'st10', name: 'Coming Soon', emoji: '🗺️', color: '#94a3b8' }]
+  }
+};
+// FIX: was localStorage-only (this browser only, never synced to students).
+// Now backed by a shared Supabase table — see subjects_table_migration.sql.
+async function getSubjects(board, cls) {
+  try {
+    const rows = await sbGet('subjects', `?board=eq.${board}&cls=eq.${cls}&order=sort_order.asc`);
+    if (rows && rows.length) {
+      const mapped = rows.map(r => ({ id: r.subj_id, name: r.name, emoji: r.emoji, color: r.color, chapters: r.chapters || [] }));
+      localStorage.setItem('aso_subjects_' + board + '_' + cls, JSON.stringify(mapped));
+      return mapped;
+    }
+  } catch (e) {
+    console.warn('[Subjects] Supabase unreachable, using local cache/defaults:', e.message);
+  }
+  const key = 'aso_subjects_' + board + '_' + cls;
+  const saved = localStorage.getItem(key);
+  if (saved) return JSON.parse(saved);
+  const defaults = DEFAULT_SUBJECTS[board]?.[cls] || [];
+  return defaults.map(s => ({ ...s, chapters: [] }));
+}
+
+async function saveSubjects(board, cls, subjects) {
+  localStorage.setItem('aso_subjects_' + board + '_' + cls, JSON.stringify(subjects));
+  const rows = subjects.map((s, i) => ({
+    board, cls, subj_id: s.id, name: s.name, emoji: s.emoji, color: s.color,
+    chapters: s.chapters || [], sort_order: i
+  }));
+  const url = `${SB_URL}/rest/v1/subjects?on_conflict=board,cls,subj_id`;
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify(rows)
+  });
+  if (!r.ok) throw new Error(await r.text());
+}
+
+// One-time helper: pushes whatever this browser has sitting in localStorage
+// (from before this fix) up to Supabase for the currently-selected board/class.
+async function migrateLocalSubjects() {
+  const board = document.getElementById('adm-board')?.value || 'cbse';
+  const cls = parseInt(document.getElementById('adm-cls')?.value || '9');
+  const local = localStorage.getItem('aso_subjects_' + board + '_' + cls);
+  if (!local) { showToast('ℹ️ Is browser mein is board/class ke liye koi local data nahi mila'); return; }
+  try {
+    await saveSubjects(board, cls, JSON.parse(local));
+    showToast('✅ Local data Supabase pe upload ho gaya!');
+    loadAdminSubjects();
+  } catch (e) { showToast('❌ Upload fail: ' + e.message); }
+}
 
 function showToast(msg) {
-    const container = document.getElementById("toastContainer");
-    const toast = document.createElement("div");
-    toast.className = "toast";
-    toast.textContent = msg;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3500);
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
 }
 
-async function logoutUser() {
-    await signOutUser();
-    location.href = "index.html";
+// ══════════════════════════════════════════
+// AUTH — role-gated to admin/teacher (FIX: previously any successfully
+// authenticated account — including students — could reach this page,
+// since login() never checked the returned role before showing the panel)
+// ══════════════════════════════════════════
+if (token && CU) {
+  showMain();
+} else {
+  localStorage.removeItem('adminToken');
+  localStorage.removeItem('adminUser');
+  document.getElementById('authGate').classList.add('active');
 }
 
-function statusPillHtml(status) {
-    return `<span class="status-pill ${status}">${status}</span>`;
-}
+async function login() {
+  const email = document.getElementById('adminEmail').value.trim();
+  const password = document.getElementById('adminPass').value;
+  if (!email || !password) { showToast('Email aur password chahiye'); return; }
 
-// ── INIT: verify admin session ─────────────────────────
-window.addEventListener("DOMContentLoaded", async () => {
-    const session = await getSession();
-    if (!session || !ORION_ADMINS.includes(session.user?.email)) {
-        document.getElementById("accessDenied").style.display = "flex";
-        document.getElementById("accessDenied").classList.add("visible");
-        return;
+  try {
+    const res = await fetch(`${API}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) { showToast(data.error || 'Login failed'); return; }
+
+    if (data.user?.role !== 'admin' && data.user?.role !== 'teacher') {
+      showToast('❌ Sirf admin/teacher accounts is panel ko access kar sakte hain');
+      return;
     }
 
-    const badge = document.getElementById("userBadge");
-    const badgeText = document.getElementById("badgeText");
-    badge.classList.remove("hidden");
-    badgeText.innerHTML = `<i class="fa-solid fa-user-secret"></i> ${session.user.email}`;
+    token = data.token;
+    CU = data.user;
+    localStorage.setItem('adminToken', token);
+    localStorage.setItem('adminUser', JSON.stringify(CU));
+    showMain();
+  } catch (e) { showToast('Error: ' + e.message); }
+}
 
-    await Promise.all([loadKeys(), loadConfig(), loadFeedback()]);
-});
+function logoutAdmin() {
+  localStorage.removeItem('adminToken');
+  localStorage.removeItem('adminUser');
+  location.reload();
+}
 
-// ── KEYS ───────────────────────────────────────────────
+function showMain() {
+  document.getElementById('authGate').classList.remove('active');
+  document.getElementById('mainContent').style.display = 'block';
+  document.getElementById('whoami').textContent = `${CU.name} — ${CU.role}`;
+  loadKeys();
+  loadStudents();
+  loadTeachers();
+  loadAdminSubjects();
+  const savedKey = localStorage.getItem('aso_api_key');
+  document.getElementById('backup-key-status').textContent = savedKey ? '✅ Backup key set hai' : 'Koi backup key set nahi hai';
+}
+
+// ══════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════
+function showTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelector(`.tab-btn[data-tab="${name}"]`).classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// API KEYS (unchanged from the previous standalone admin.html)
+// ══════════════════════════════════════════
 async function loadKeys() {
-    try {
-        const res = await authedFetch(`${BACKEND}?action=get-keys`);
-        const data = await res.json();
-        if (!data.success) { showToast(data.error || "Could not load keys."); return; }
+  try {
+    const res = await fetch(`${API}/keys`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data = await res.json();
+    if (!res.ok) { showToast(data.error); return; }
 
-        const tbody = document.getElementById("keysTableBody");
-        tbody.innerHTML = "";
-        data.keys.forEach(k => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${k.provider}</td>
-                <td class="mono">${k.api_key}</td>
-                <td>${statusPillHtml(k.status)}</td>
-                <td>${k.usage_count}</td>
-                <td style="display:flex; gap:6px;">
-                    <button class="btn btn-secondary" onclick="toggleKey(${k.id}, '${k.status === 'active' ? 'exhausted' : 'active'}')">
-                        ${k.status === 'active' ? 'Disable' : 'Enable'}
-                    </button>
-                    <button class="btn btn-secondary" onclick="resetKey(${k.id})">Reset</button>
-                    <button class="btn btn-danger" onclick="deleteKey(${k.id})">Delete</button>
-                </td>`;
-            tbody.appendChild(tr);
-        });
-    } catch (e) {
-        showToast("Network error loading keys.");
-    }
+    const keys = data.keys;
+    const active = keys.filter(k => k.status === 'active').length;
+    const totalUses = keys.reduce((sum, k) => sum + (k.usage_count || 0), 0);
+
+    document.getElementById('statTotal').textContent = keys.length;
+    document.getElementById('statActive').textContent = active;
+    document.getElementById('statUses').textContent = totalUses;
+
+    const html = keys.map(k => `
+      <div class="key-item ${k.status === 'inactive' ? 'inactive' : ''}">
+        <div class="key-info">
+          <div class="key-model">${escapeHtml(k.model)} (${k.status})</div>
+          <div class="key-key">${escapeHtml(k.api_key)}</div>
+          <div class="key-usage">Used: ${k.usage_count || 0} times</div>
+        </div>
+        <div class="key-actions">
+          <button class="btn-toggle" onclick="toggleKey('${k.id}', '${k.status === 'active' ? 'inactive' : 'active'}')">${k.status === 'active' ? '⏸' : '▶'}</button>
+          <button class="btn-reset" onclick="resetKey('${k.id}')">↺ Reset</button>
+          <button class="btn-delete" onclick="deleteKey('${k.id}')">🗑</button>
+        </div>
+      </div>`).join('');
+
+    document.getElementById('keysList').innerHTML = html || '<p style="text-align:center;color:#9ca3af;">No keys yet</p>';
+  } catch (e) { showToast('Error loading keys: ' + e.message); }
 }
 
 async function addKey() {
-    const provider = document.getElementById("newKeyProvider").value;
-    const api_key = document.getElementById("newKeyValue").value.trim();
-    if (!api_key) { showToast("Enter an API key value."); return; }
-
-    const res = await authedFetch(`${BACKEND}?action=add-key`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ provider, api_key })
+  const model = document.getElementById('newModel').value;
+  const api_key = document.getElementById('newKey').value.trim();
+  if (!api_key) { showToast('API key chahiye'); return; }
+  try {
+    const res = await fetch(`${API}/keys`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ model, api_key })
     });
     const data = await res.json();
-    if (data.success) {
-        showToast("Key added.");
-        document.getElementById("newKeyValue").value = "";
-        await loadKeys();
-    } else {
-        showToast(data.error || "Could not add key.");
-    }
+    if (!res.ok) { showToast(data.error); return; }
+    showToast('✅ Key added successfully');
+    document.getElementById('newKey').value = '';
+    loadKeys();
+  } catch (e) { showToast('Error: ' + e.message); }
 }
 
 async function toggleKey(id, status) {
-    const res = await authedFetch(`${BACKEND}?action=toggle-key`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, status })
+  try {
+    const res = await fetch(`${API}/keys/${id}/toggle`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ status })
     });
-    const data = await res.json();
-    if (data.success) await loadKeys(); else showToast(data.error || "Failed.");
+    if (!res.ok) { showToast('Error toggling key'); return; }
+    showToast('✅ Key status updated');
+    loadKeys();
+  } catch (e) { showToast('Error: ' + e.message); }
 }
 
 async function resetKey(id) {
-    const res = await authedFetch(`${BACKEND}?action=reset-key`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-    });
-    const data = await res.json();
-    if (data.success) await loadKeys(); else showToast(data.error || "Failed.");
+  try {
+    const res = await fetch(`${API}/keys/${id}/reset`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+    if (!res.ok) { showToast('Error resetting key'); return; }
+    showToast('✅ Key usage reset');
+    loadKeys();
+  } catch (e) { showToast('Error: ' + e.message); }
 }
 
 async function deleteKey(id) {
-    if (!confirm("Delete this key permanently?")) return;
-    const res = await authedFetch(`${BACKEND}?action=delete-key`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
+  if (!confirm('Delete this key?')) return;
+  try {
+    const res = await fetch(`${API}/keys/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+    if (!res.ok) { showToast('Error deleting key'); return; }
+    showToast('✅ Key deleted');
+    loadKeys();
+  } catch (e) { showToast('Error: ' + e.message); }
+}
+
+// ══════════════════════════════════════════
+// STUDENTS (migrated from admin.js)
+// ══════════════════════════════════════════
+async function loadStudents() {
+  let students = [];
+  try {
+    students = (await sbGet('students', '?order=joined.desc&select=name,email,phone,class,board,role,joined,tests_done,chapters_done')) || [];
+  } catch (e) {
+    students = JSON.parse(localStorage.getItem('aso_users') || '[]');
+  }
+  students = students.filter(u => u.role !== 'teacher' && u.role !== 'admin');
+
+  document.getElementById('students-title').textContent = `📊 Students (${students.length} registered)`;
+  const rows = students.length === 0
+    ? '<tr><td colspan="7" style="text-align:center;padding:16px;color:#64748b">Koi student nahi abhi</td></tr>'
+    : students.map(u => `<tr>
+        <td><b>${escapeHtml(u.name || '—')}</b><div style="font-size:0.65rem;color:#64748b">${escapeHtml(u.email || u.phone || '—')}</div></td>
+        <td>${escapeHtml(u.class || '—')}</td>
+        <td>${escapeHtml((u.board || 'cbse').toUpperCase())}</td>
+        <td style="color:#22c55e;font-weight:700">${u.chapters_done || 0}</td>
+        <td style="color:#a78bfa;font-weight:700">${u.tests_done || 0}</td>
+        <td style="font-size:0.68rem;color:#64748b">${u.joined ? new Date(u.joined).toLocaleDateString('en-IN') : '—'}</td>
+        <td><button onclick="removeStudent('${escapeHtml(u.email || u.phone)}')" style="padding:3px 7px;border-radius:5px;font-size:0.63rem;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.18);color:#ef4444;cursor:pointer">Remove</button></td>
+      </tr>`).join('');
+
+  document.getElementById('students-table').innerHTML =
+    '<tr><th>Name</th><th>Class</th><th>Board</th><th>Chapters</th><th>Tests</th><th>Joined</th><th>Action</th></tr>' + rows;
+}
+
+async function removeStudent(id) {
+  if (!confirm('Remove?')) return;
+  try { await sbDelete('students', `?email=eq.${encodeURIComponent(id)}`); }
+  catch (e) {
+    let us = JSON.parse(localStorage.getItem('aso_users') || '[]');
+    us = us.filter(x => x.email !== id && x.phone !== id);
+    localStorage.setItem('aso_users', JSON.stringify(us));
+  }
+  showToast('🗑️ Removed');
+  loadStudents();
+}
+
+// ══════════════════════════════════════════
+// TEACHERS (migrated + FIX: was a static hardcoded table before — now
+// actually lists teachers added via this panel, from Supabase)
+// ══════════════════════════════════════════
+async function loadTeachers() {
+  let teachers = [];
+  try {
+    teachers = (await sbGet('students', '?role=eq.teacher&order=joined.desc&select=name,email,joined')) || [];
+  } catch (e) {
+    const us = JSON.parse(localStorage.getItem('aso_users') || '[]');
+    teachers = us.filter(u => u.role === 'teacher');
+  }
+
+  const rows = teachers.length === 0
+    ? '<tr><td colspan="4" style="text-align:center;padding:16px;color:#64748b">Abhi koi teacher add nahi hua</td></tr>'
+    : teachers.map(t => `<tr>
+        <td><b>${escapeHtml(t.name)}</b></td>
+        <td style="font-size:0.7rem;color:#94a3b8">${escapeHtml(t.email || '—')}</td>
+        <td><span class="rpill rpt">Teacher</span></td>
+        <td><button onclick="removeStudent('${escapeHtml(t.email)}')" style="padding:2px 8px;border-radius:5px;font-size:0.63rem;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.18);color:#ef4444;cursor:pointer">Remove</button></td>
+      </tr>`).join('');
+
+  document.getElementById('teachers-table').innerHTML =
+    '<tr><th>Name</th><th>Email</th><th>Role</th><th>Action</th></tr>' + rows;
+}
+
+async function addTeacher() {
+  const n = document.getElementById('nt-n').value.trim();
+  const e = document.getElementById('nt-e').value.trim();
+  const p = document.getElementById('nt-p').value.trim();
+  if (!n || !e || !p) { showToast('⚠️ Sab bharo'); return; }
+  const u = { name: n, email: e, pass: p, role: 'teacher', class: '12', board: 'cbse', avatar: n[0].toUpperCase(), joined: new Date().toISOString(), tests_done: 0, chapters_done: 0 };
+  try { await sbPost('students', u); }
+  catch (e2) {
+    const us = JSON.parse(localStorage.getItem('aso_users') || '[]');
+    us.push(u);
+    localStorage.setItem('aso_users', JSON.stringify(us));
+  }
+  document.getElementById('nt-n').value = ''; document.getElementById('nt-e').value = ''; document.getElementById('nt-p').value = '';
+  showToast(`✅ ${n} add ho gaya!`);
+  loadTeachers();
+}
+
+// ══════════════════════════════════════════
+// SUBJECTS & CHAPTERS — now Supabase-backed, see getSubjects()/saveSubjects() above
+// ══════════════════════════════════════════
+async function loadAdminSubjects() {
+  const board = document.getElementById('adm-board')?.value || 'cbse';
+  const cls = parseInt(document.getElementById('adm-cls')?.value || '9');
+  const subjects = await getSubjects(board, cls);
+  const sel = document.getElementById('adm-subj');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">-- Subject chuno --</option>' + subjects.map((s, i) => `<option value="${i}">${s.emoji} ${escapeHtml(s.name)}</option>`).join('');
+  document.getElementById('adm-chapters-list').innerHTML = '';
+}
+
+async function loadAdminChapters() {
+  const board = document.getElementById('adm-board')?.value || 'cbse';
+  const cls = parseInt(document.getElementById('adm-cls')?.value || '9');
+  const idx = parseInt(document.getElementById('adm-subj')?.value);
+  if (isNaN(idx)) return;
+  const subjects = await getSubjects(board, cls);
+  const subj = subjects[idx];
+  if (!subj) return;
+  const chapters = subj.chapters || [];
+  const div = document.getElementById('adm-chapters-list');
+  if (chapters.length === 0) {
+    div.innerHTML = '<div style="text-align:center;padding:14px;color:#64748b;font-size:0.78rem">Koi chapter nahi — neeche se add karo!</div>';
+    return;
+  }
+  div.innerHTML = `
+    <div style="font-size:0.7rem;color:#64748b;margin-bottom:8px;font-weight:600">${chapters.length} Chapters:</div>
+    ${chapters.map((ch, i) => `
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#0c1020;border:1px solid #1a3a52;border-radius:8px;margin-bottom:5px">
+        <div style="width:22px;height:22px;border-radius:6px;background:${subj.color}18;color:${subj.color};display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;flex-shrink:0">${i + 1}</div>
+        <div style="flex:1;font-size:0.8rem;font-weight:500">${escapeHtml(ch)}</div>
+        <button onclick="deleteChapter(${idx},${i})" style="width:24px;height:24px;border-radius:6px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444;font-size:0.7rem;cursor:pointer;flex-shrink:0">🗑</button>
+      </div>`).join('')}`;
+}
+
+async function addChapter() {
+  const board = document.getElementById('adm-board')?.value || 'cbse';
+  const cls = parseInt(document.getElementById('adm-cls')?.value || '9');
+  const idx = parseInt(document.getElementById('adm-subj')?.value);
+  const inp = document.getElementById('new-chapter-inp');
+  const name = inp?.value.trim().slice(0, 100);
+  if (isNaN(idx)) { showToast('⚠️ Pehle subject chuno'); return; }
+  if (!name) { showToast('⚠️ Chapter ka naam likho'); return; }
+  if (name.length < 2) { showToast('⚠️ Chapter naam thoda lamba likho'); return; }
+  const subjects = await getSubjects(board, cls);
+  if (!subjects[idx].chapters) subjects[idx].chapters = [];
+  subjects[idx].chapters.push(name);
+  try {
+    await saveSubjects(board, cls, subjects);
+    inp.value = '';
+    loadAdminChapters();
+    showToast(`✅ "${name}" chapter add ho gaya — sab students ko dikhega!`);
+  } catch (e) { showToast('❌ Supabase sync fail: ' + e.message); }
+}
+
+async function deleteChapter(subjIdx, chapIdx) {
+  const board = document.getElementById('adm-board')?.value || 'cbse';
+  const cls = parseInt(document.getElementById('adm-cls')?.value || '9');
+  const subjects = await getSubjects(board, cls);
+  const ch = subjects[subjIdx].chapters[chapIdx];
+  if (!confirm(`"${ch}" delete karo?`)) return;
+  subjects[subjIdx].chapters.splice(chapIdx, 1);
+  try {
+    await saveSubjects(board, cls, subjects);
+    loadAdminChapters();
+    showToast('🗑️ Chapter deleted — sab students ke liye');
+  } catch (e) { showToast('❌ Supabase sync fail: ' + e.message); }
+}
+
+async function addSubject() {
+  const board = document.getElementById('adm-board')?.value || 'cbse';
+  const cls = parseInt(document.getElementById('adm-cls')?.value || '9');
+  const name = document.getElementById('new-subj-name')?.value.trim();
+  const emoji = document.getElementById('new-subj-emoji')?.value.trim() || '📚';
+  if (!name) { showToast('⚠️ Subject naam likho'); return; }
+  const subjects = await getSubjects(board, cls);
+  const colors = ['#22c55e', '#4f8ef7', '#06b6d4', '#f97316', '#eab308', '#a78bfa', '#ef4444', '#ec4899'];
+  const color = colors[subjects.length % colors.length];
+  const id = name.toLowerCase().replace(/\s+/g, '_') + '_' + cls;
+  subjects.push({ id, name, emoji, color, chapters: [] });
+  try {
+    await saveSubjects(board, cls, subjects);
+    document.getElementById('new-subj-name').value = '';
+    document.getElementById('new-subj-emoji').value = '';
+    loadAdminSubjects();
+    showToast(`✅ "${name}" subject add ho gaya — sab students ko dikhega!`);
+  } catch (e) { showToast('❌ Supabase sync fail: ' + e.message); }
+}
+
+// ══════════════════════════════════════════
+// AI VIDEO GENERATOR — calls the backend directly (same multi-key rotation
+// configured in the API Keys tab). Deliberately doesn't duplicate the full
+// multi-provider client-side fallback logic from the student app's ai.js,
+// to keep this panel self-contained and reliant on the same backend keys
+// you manage right here.
+// ══════════════════════════════════════════
+async function genVid() {
+  const subject = document.getElementById('vg-s')?.value || 'Mathematics';
+  const topic = document.getElementById('vg-t')?.value.trim();
+  const lang = document.getElementById('vg-l')?.value || 'hinglish';
+  if (!topic) { showToast('⚠️ Topic likho'); return; }
+
+  const btn = document.getElementById('vg-btn');
+  btn.disabled = true; btn.textContent = '⏳ Generating...';
+
+  try {
+    const sys = `Tu ek expert Manim (Community Edition) animator hai jo 3Blue1Brown-style educational videos banata hai.`;
+    const prompt = `Subject: ${subject}
+Topic: "${topic}"
+Voiceover language: ${lang === 'hinglish' ? 'Hinglish (Hindi+English mix, jaise Indian teachers bolte hain)' : 'English'}
+
+Generate:
+1. Complete, working Manim CE Python code (a class extending Scene) that visually explains this topic step by step, clearly commented.
+2. A voiceover script that matches the animation's pacing/timing.
+
+Reply ONLY with valid JSON, no markdown fences, no explanation:
+{"code":"...full python code here...","script":"...voiceover script here..."}`;
+
+    const res = await fetch(`${API}/ai/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ system: sys, messages: [{ role: 'user', content: prompt }] })
     });
-    const data = await res.json();
-    if (data.success) await loadKeys(); else showToast(data.error || "Failed.");
+    const d = await res.json();
+    if (!res.ok || !d.reply) throw new Error(d.error || 'AI backend unavailable — check the API Keys tab for active keys');
+
+    const m = d.reply.match(/\{[\s\S]*\}/);
+    if (!m) throw new Error('AI ne valid response nahi diya — dobara try karo');
+    const parsed = JSON.parse(m[0]);
+
+    document.getElementById('vg-code').textContent = parsed.code || '# Code generate nahi hua';
+    document.getElementById('vg-sc').textContent = parsed.script || '';
+    document.getElementById('vg-out').style.display = 'block';
+    showToast('✅ Animation code ready!');
+  } catch (e) {
+    showToast('❌ ' + e.message);
+  }
+  btn.disabled = false; btn.textContent = '🎬 Generate Animation Code';
 }
 
-// ── PRICING CONFIG ───────────────────────────────────────
-async function loadConfig() {
-    try {
-        const res = await fetch(`${BACKEND}?action=get-config`);
-        const cfg = await res.json();
-        document.getElementById("cfgWeekly").value = cfg.weekly_price;
-        document.getElementById("cfgMonthlyBase").value = cfg.monthly_base;
-        document.getElementById("cfgMonthlyDiscount").value = cfg.monthly_discount;
-        document.getElementById("cfgYearlyBase").value = cfg.yearly_base;
-        document.getElementById("cfgYearlyDiscount").value = cfg.yearly_discount;
-    } catch (e) {
-        showToast("Could not load pricing config.");
-    }
+// ══════════════════════════════════════════
+// BROADCAST (migrated from admin.js — paired with renderBroadcast() in the
+// student app's app.js, which reads from the same 'broadcasts' table)
+// ══════════════════════════════════════════
+async function broadcast() {
+  const subject = document.getElementById('bc-s')?.value.trim();
+  const msg = document.getElementById('bc-m')?.value.trim();
+  if (!subject || !msg) { showToast('⚠️ Subject aur message dono likho'); return; }
+
+  const b = { subject, message: msg, sent_at: new Date().toISOString(), sent_by: CU?.name || 'Admin' };
+  try { await sbPost('broadcasts', b); }
+  catch (e) {
+    const all = JSON.parse(localStorage.getItem('aso_broadcasts') || '[]');
+    all.unshift(b);
+    localStorage.setItem('aso_broadcasts', JSON.stringify(all.slice(0, 20)));
+  }
+  document.getElementById('bc-s').value = '';
+  document.getElementById('bc-m').value = '';
+  showToast('📤 Broadcast bhej diya — students ko home page pe dikhega!');
 }
 
-async function updatePricing() {
-    const body = {
-        weekly_price: Number(document.getElementById("cfgWeekly").value),
-        monthly_base: Number(document.getElementById("cfgMonthlyBase").value),
-        monthly_discount: Number(document.getElementById("cfgMonthlyDiscount").value),
-        yearly_base: Number(document.getElementById("cfgYearlyBase").value),
-        yearly_discount: Number(document.getElementById("cfgYearlyDiscount").value)
-    };
-    const res = await authedFetch(`${BACKEND}?action=update-pricing`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-    });
-    const data = await res.json();
-    if (data.success) showToast("Pricing updated."); else showToast(data.error || "Failed.");
+// ══════════════════════════════════════════
+// BACKUP AI KEY (migrated from admin.js)
+// ══════════════════════════════════════════
+async function saveKey() {
+  const k = document.getElementById('api-inp').value.trim();
+  if (!k) { showToast('⚠️ Key daalo'); return; }
+  localStorage.setItem('aso_api_key', k);
+  try { await sbPost('settings', { key: 'api_key', value: k }); }
+  catch (e) { try { await sbPatch('settings', { value: k }, '?key=eq.api_key'); } catch (e2) {} }
+  showToast('✅ Key saved! Sab devices pe kaam karega.');
+  document.getElementById('backup-key-status').textContent = '✅ Backup key set hai';
+  document.getElementById('api-inp').value = '';
 }
-
-// ── UPGRADE USER ──────────────────────────────────────────
-async function upgradeUser() {
-    const email = document.getElementById("upgradeEmail").value.trim();
-    const plan = document.getElementById("upgradePlan").value;
-    if (!email) { showToast("Enter a user email."); return; }
-
-    const res = await authedFetch(`${BACKEND}?action=upgrade-user`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, plan })
-    });
-    const data = await res.json();
-    if (data.success) showToast(`${email} upgraded to ${plan}.`); else showToast(data.error || "Failed.");
-}
-
-// ── FEEDBACK ───────────────────────────────────────────────
-async function loadFeedback() {
-    try {
-        const res = await authedFetch(`${BACKEND}?action=get-feedbacks`);
-        const data = await res.json();
-        if (!data.success) { showToast(data.error || "Could not load feedback."); return; }
-
-        const tbody = document.getElementById("feedbackTableBody");
-        tbody.innerHTML = "";
-        data.feedbacks.forEach(f => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${f.email}</td>
-                <td>${"★".repeat(f.rating_stars)}</td>
-                <td>${f.feedback_text || "—"}</td>
-                <td>${new Date(f.created_at).toLocaleDateString()}</td>`;
-            tbody.appendChild(tr);
-        });
-    } catch (e) {
-        showToast("Network error loading feedback.");
-    }
+function clearKey() {
+  localStorage.removeItem('aso_api_key');
+  showToast('🗑️ Cleared');
+  document.getElementById('backup-key-status').textContent = 'Koi backup key set nahi hai';
 }
 </script>
+
 </body>
 </html>

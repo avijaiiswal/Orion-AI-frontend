@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orion Hub — Admin Console</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="brand"><i class="fa-solid fa-user-secret"></i> Orion Admin</div>
+        <a class="sidebar-link" href="index.html"><i class="fa-solid fa-arrow-left"></i> Back to App</a>
+        <span class="sidebar-link" onclick="logoutUser()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</span>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <h1>Admin Console</h1>
+            <div class="badge hidden" id="userBadge"><span id="badgeText"></span></div>
+        </div>
+
+        <!-- API KEYS -->
+        <section class="panel">
+            <label>API Keys</label>
+            <table>
+                <thead>
+                    <tr><th>Provider</th><th>Key</th><th>Status</th><th>Usage</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="keysTableBody"></tbody>
+            </table>
+
+            <div style="margin-top:16px; display:flex; gap:8px; flex-wrap:wrap;">
+                <select id="newKeyProvider" style="max-width:140px;">
+                    <option value="gemini">gemini</option>
+                    <option value="groq">groq</option>
+                    <option value="openai">openai</option>
+                </select>
+                <input type="text" id="newKeyValue" placeholder="API key value" style="flex:1; min-width:200px;">
+                <button class="btn" onclick="addKey()"><i class="fa-solid fa-plus"></i> Add Key</button>
+            </div>
+        </section>
+
+        <!-- PRICING -->
+        <section class="panel">
+            <label>Pricing Config</label>
+            <div class="field"><label>Weekly Price (₹)</label><input type="number" id="cfgWeekly"></div>
+            <div class="field"><label>Monthly Base (₹)</label><input type="number" id="cfgMonthlyBase"></div>
+            <div class="field"><label>Monthly Discount (%)</label><input type="number" id="cfgMonthlyDiscount"></div>
+            <div class="field"><label>Yearly Base (₹)</label><input type="number" id="cfgYearlyBase"></div>
+            <div class="field"><label>Yearly Discount (%)</label><input type="number" id="cfgYearlyDiscount"></div>
+            <button class="btn" onclick="updatePricing()"><i class="fa-solid fa-floppy-disk"></i> Save Pricing</button>
+        </section>
+
+        <!-- UPGRADE USER -->
+        <section class="panel">
+            <label>Upgrade User Plan</label>
+            <div class="field"><label>User Email</label><input type="email" id="upgradeEmail" placeholder="user@example.com"></div>
+            <div class="field">
+                <label>Plan</label>
+                <select id="upgradePlan">
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="ultimate">Ultimate</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <button class="btn" onclick="upgradeUser()"><i class="fa-solid fa-arrow-up"></i> Apply Upgrade</button>
+        </section>
+
+        <!-- FEEDBACK -->
+        <section class="panel">
+            <label>Recent Feedback</label>
+            <table>
+                <thead><tr><th>Email</th><th>Rating</th><th>Comment</th><th>Date</th></tr></thead>
+                <tbody id="feedbackTableBody"></tbody>
+            </table>
+        </section>
+    </main>
+</div>
+
+<div class="modal-overlay" id="accessDenied">
+    <div class="modal">
+        <div class="modal-icon"><i class="fa-solid fa-ban"></i></div>
+        <h2>Access Denied</h2>
+        <p>This page is restricted to Orion administrators.</p>
+        <a class="btn btn-block" href="index.html">Return to App</a>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="auth.js"></script>
+<script>
+const ORION_ADMINS = [
+    "avijaiswal10052009@gmail.com",
+    "Anonymousperson1508@gmail.com"
+];
+
+function showToast(msg) {
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
+}
+
+async function logoutUser() {
+    await signOutUser();
+    location.href = "index.html";
+}
+
+function statusPillHtml(status) {
+    return `<span class="status-pill ${status}">${status}</span>`;
+}
+
+// ── INIT: verify admin session ─────────────────────────
+window.addEventListener("DOMContentLoaded", async () => {
+    const session = await getSession();
+    if (!session || !ORION_ADMINS.includes(session.user?.email)) {
+        document.getElementById("accessDenied").style.display = "flex";
+        document.getElementById("accessDenied").classList.add("visible");
+        return;
+    }
+
+    const badge = document.getElementById("userBadge");
+    const badgeText = document.getElementById("badgeText");
+    badge.classList.remove("hidden");
+    badgeText.innerHTML = `<i class="fa-solid fa-user-secret"></i> ${session.user.email}`;
+
+    await Promise.all([loadKeys(), loadConfig(), loadFeedback()]);
+});
+
+// ── KEYS ───────────────────────────────────────────────
+async function loadKeys() {
+    try {
+        const res = await authedFetch(`${BACKEND}?action=get-keys`);
+        const data = await res.json();
+        if (!data.success) { showToast(data.error || "Could not load keys."); return; }
+
+        const tbody = document.getElementById("keysTableBody");
+        tbody.innerHTML = "";
+        data.keys.forEach(k => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${k.provider}</td>
+                <td class="mono">${k.api_key}</td>
+                <td>${statusPillHtml(k.status)}</td>
+                <td>${k.usage_count}</td>
+                <td style="display:flex; gap:6px;">
+                    <button class="btn btn-secondary" onclick="toggleKey(${k.id}, '${k.status === 'active' ? 'exhausted' : 'active'}')">
+                        ${k.status === 'active' ? 'Disable' : 'Enable'}
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetKey(${k.id})">Reset</button>
+                    <button class="btn btn-danger" onclick="deleteKey(${k.id})">Delete</button>
+                </td>`;
+            tbody.appendChild(tr);
+        });
+    } catch (e) {
+        showToast("Network error loading keys.");
+    }
+}
+
+async function addKey() {
+    const provider = document.getElementById("newKeyProvider").value;
+    const api_key = document.getElementById("newKeyValue").value.trim();
+    if (!api_key) { showToast("Enter an API key value."); return; }
+
+    const res = await authedFetch(`${BACKEND}?action=add-key`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider, api_key })
+    });
+    const data = await res.json();
+    if (data.success) {
+        showToast("Key added.");
+        document.getElementById("newKeyValue").value = "";
+        await loadKeys();
+    } else {
+        showToast(data.error || "Could not add key.");
+    }
+}
+
+async function toggleKey(id, status) {
+    const res = await authedFetch(`${BACKEND}?action=toggle-key`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status })
+    });
+    const data = await res.json();
+    if (data.success) await loadKeys(); else showToast(data.error || "Failed.");
+}
+
+async function resetKey(id) {
+    const res = await authedFetch(`${BACKEND}?action=reset-key`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+    });
+    const data = await res.json();
+    if (data.success) await loadKeys(); else showToast(data.error || "Failed.");
+}
+
+async function deleteKey(id) {
+    if (!confirm("Delete this key permanently?")) return;
+    const res = await authedFetch(`${BACKEND}?action=delete-key`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+    });
+    const data = await res.json();
+    if (data.success) await loadKeys(); else showToast(data.error || "Failed.");
+}
+
+// ── PRICING CONFIG ───────────────────────────────────────
+async function loadConfig() {
+    try {
+        const res = await fetch(`${BACKEND}?action=get-config`);
+        const cfg = await res.json();
+        document.getElementById("cfgWeekly").value = cfg.weekly_price;
+        document.getElementById("cfgMonthlyBase").value = cfg.monthly_base;
+        document.getElementById("cfgMonthlyDiscount").value = cfg.monthly_discount;
+        document.getElementById("cfgYearlyBase").value = cfg.yearly_base;
+        document.getElementById("cfgYearlyDiscount").value = cfg.yearly_discount;
+    } catch (e) {
+        showToast("Could not load pricing config.");
+    }
+}
+
+async function updatePricing() {
+    const body = {
+        weekly_price: Number(document.getElementById("cfgWeekly").value),
+        monthly_base: Number(document.getElementById("cfgMonthlyBase").value),
+        monthly_discount: Number(document.getElementById("cfgMonthlyDiscount").value),
+        yearly_base: Number(document.getElementById("cfgYearlyBase").value),
+        yearly_discount: Number(document.getElementById("cfgYearlyDiscount").value)
+    };
+    const res = await authedFetch(`${BACKEND}?action=update-pricing`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (data.success) showToast("Pricing updated."); else showToast(data.error || "Failed.");
+}
+
+// ── UPGRADE USER ──────────────────────────────────────────
+async function upgradeUser() {
+    const email = document.getElementById("upgradeEmail").value.trim();
+    const plan = document.getElementById("upgradePlan").value;
+    if (!email) { showToast("Enter a user email."); return; }
+
+    const res = await authedFetch(`${BACKEND}?action=upgrade-user`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, plan })
+    });
+    const data = await res.json();
+    if (data.success) showToast(`${email} upgraded to ${plan}.`); else showToast(data.error || "Failed.");
+}
+
+// ── FEEDBACK ───────────────────────────────────────────────
+async function loadFeedback() {
+    try {
+        const res = await authedFetch(`${BACKEND}?action=get-feedbacks`);
+        const data = await res.json();
+        if (!data.success) { showToast(data.error || "Could not load feedback."); return; }
+
+        const tbody = document.getElementById("feedbackTableBody");
+        tbody.innerHTML = "";
+        data.feedbacks.forEach(f => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${f.email}</td>
+                <td>${"★".repeat(f.rating_stars)}</td>
+                <td>${f.feedback_text || "—"}</td>
+                <td>${new Date(f.created_at).toLocaleDateString()}</td>`;
+            tbody.appendChild(tr);
+        });
+    } catch (e) {
+        showToast("Network error loading feedback.");
+    }
+}
+</script>
+</body>
+</html>

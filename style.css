@@ -339,7 +339,7 @@ a { color: var(--accent); text-decoration: none; }
 .greeting-line {
     font-size: 30px;
     font-weight: 800;
-    font-family: 'Inclusive Sans', sans-serif;
+    font-family: 'Newsreader', Georgia, serif;
     letter-spacing: 0.01em;
     line-height: 1.2;
     transition: color 1s ease;

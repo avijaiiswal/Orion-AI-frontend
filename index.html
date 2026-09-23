@@ -772,26 +772,46 @@
   draw();
 })();
 
-// ── GREETING ───────────────────────────────────────────
+// -- GREETING ----------------------------------------
 const timeSlots = [
-  { minH: 5,  maxH: 8,  label: 'Good morning',   color: '#f97316' },
-  { minH: 8,  maxH: 12, label: 'Good morning',   color: '#facc15' },
-  { minH: 12, maxH: 17, label: 'Good afternoon', color: '#86efac' },
-  { minH: 17, maxH: 19, label: 'Good evening',   color: '#fb923c' },
-  { minH: 19, maxH: 21, label: 'Good evening',   color: '#c084fc' },
-  { minH: 21, maxH: 24, label: 'Up Late',     color: '#818cf8' },
-  { minH: 0,  maxH: 5,  label: 'Up Late',     color: '#8db6f0' },
+  { minH: 5,  maxH: 8,  color: '#f97316', labels: [
+      'Sunrise thoughts?', 'Early bird chat?', 'Coffee first, questions later?', 'Rise and ponder?'
+  ]},
+  { minH: 8,  maxH: 12, color: '#facc15', labels: [
+      'Morning spark?', 'Fresh page, fresh ideas?', 'Brewing something new?', "What's on your mind?"
+  ]},
+  { minH: 12, maxH: 17, color: '#86efac', labels: [
+      'Afternoon musings?', 'Midday detour?', 'Lunch break brainstorm?', 'Need a second wind?'
+  ]},
+  { minH: 17, maxH: 19, color: '#fb923c', labels: [
+      'Golden hour chat?', 'Sunset session?', 'Winding down or gearing up?', 'Evening tea thoughts?'
+  ]},
+  { minH: 19, maxH: 21, color: '#c084fc', labels: [
+      'Dinner and ideas?', 'Twilight talk?', "What's cooking?", 'Evening unwind?'
+  ]},
+  { minH: 21, maxH: 24, color: '#818cf8', labels: [
+      'Moonlit chat?', 'Night owl hours?', 'Starlit thoughts?', 'Still up, huh?'
+  ]},
+  { minH: 0,  maxH: 5,  color: '#8db6f0', labels: [
+      'Midnight oil, anyone?', "Can't sleep either?", 'Late night wonderings?', 'Insomniac ideas?'
+  ]},
 ];
-function applyGreeting(name) {
+
+function getGreeting() {
   const h = new Date().getHours();
-  const slot = timeSlots.find(s => h >= s.minH && h < s.maxH) || timeSlots[timeSlots.length - 1];
-  const el = document.getElementById('greetingLine');
-  const sub = document.getElementById('greetingSub');
-  el.textContent = slot.label;
-  el.style.color = slot.color;
-  if (name) sub.textContent = name;
+  const slot = timeSlots.find(s => h >= s.minH && h < s.maxH);
+
+  // Pick a random label, but avoid repeating the last one shown
+  let last = null;
+  try { last = localStorage.getItem('lastGreeting'); } catch (e) {}
+
+  const options = slot.labels.filter(l => l !== last);
+  const label = options[Math.floor(Math.random() * options.length)];
+
+  try { localStorage.setItem('lastGreeting', label); } catch (e) {}
+
+  return { label, color: slot.color };
 }
-applyGreeting(null);
 
 // ── HISTORY PANEL TOGGLE ───────────────────────────────
 const historyPanel  = document.getElementById('historyPanel');

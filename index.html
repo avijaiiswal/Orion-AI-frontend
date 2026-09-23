@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +7,31 @@
 <title>Orion Hub — AI Toolkit</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+<!-- Greeting fonts: Newsreader (first line) + Bebas Neue (second line) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Newsreader:opsz,wght@6..72,400..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<!-- Greeting style overrides (placed after style.css so they win; the # selectors beat the .class rules) -->
+<style>
+  #greetingLine {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    text-transform: none;
+    transition: color 1s ease;
+  }
+  #greetingSub {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    font-style: normal;
+    letter-spacing: 0.05em;
+    margin-top: 3px;
+  }
+</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
@@ -772,46 +797,85 @@
   draw();
 })();
 
-// -- GREETING ----------------------------------------
-const timeSlots = [
-  { minH: 5,  maxH: 8,  color: '#f97316', labels: [
-      'Sunrise thoughts?', 'Early bird chat?', 'Coffee first, questions later?', 'Rise and ponder?'
-  ]},
-  { minH: 8,  maxH: 12, color: '#facc15', labels: [
-      'Morning spark?', 'Fresh page, fresh ideas?', 'Brewing something new?', "What's on your mind?"
-  ]},
-  { minH: 12, maxH: 17, color: '#86efac', labels: [
-      'Afternoon musings?', 'Midday detour?', 'Lunch break brainstorm?', 'Need a second wind?'
-  ]},
-  { minH: 17, maxH: 19, color: '#fb923c', labels: [
-      'Golden hour chat?', 'Sunset session?', 'Winding down or gearing up?', 'Evening tea thoughts?'
-  ]},
-  { minH: 19, maxH: 21, color: '#c084fc', labels: [
-      'Dinner and ideas?', 'Twilight talk?', "What's cooking?", 'Evening unwind?'
-  ]},
-  { minH: 21, maxH: 24, color: '#818cf8', labels: [
-      'Moonlit chat?', 'Night owl hours?', 'Starlit thoughts?', 'Still up, huh?'
-  ]},
-  { minH: 0,  maxH: 5,  color: '#8db6f0', labels: [
-      'Midnight oil, anyone?', "Can't sleep either?", 'Late night wonderings?', 'Insomniac ideas?'
-  ]},
-];
+// ── GREETING (random line per page load, based on time of day) ──────────────
+// Wrapped in an IIFE and uniquely named so it can never clash with anything
+// declared in script.js / auth.js (no "already been declared" errors).
+(function initOrionGreeting() {
+  const GREETING_SLOTS = [
+    { minH: 5,  maxH: 8,  color: '#f97316', labels: [
+        'Sunrise thoughts?', 'Early bird chat?', 'Coffee first, questions later?', 'Rise and ponder?'
+    ]},
+    { minH: 8,  maxH: 12, color: '#facc15', labels: [
+        'Morning spark?', 'Fresh page, fresh ideas?', 'Brewing something new?', "What's on your mind?"
+    ]},
+    { minH: 12, maxH: 17, color: '#86efac', labels: [
+        'Afternoon musings?', 'Midday detour?', 'Lunch break brainstorm?', 'Need a second wind?'
+    ]},
+    { minH: 17, maxH: 19, color: '#fb923c', labels: [
+        'Golden hour chat?', 'Sunset session?', 'Winding down or gearing up?', 'Evening tea thoughts?'
+    ]},
+    { minH: 19, maxH: 21, color: '#c084fc', labels: [
+        'Dinner and ideas?', 'Twilight talk?', "What's cooking?", 'Evening unwind?'
+    ]},
+    { minH: 21, maxH: 24, color: '#818cf8', labels: [
+        'Moonlit chat?', 'Night owl hours?', 'Starlit thoughts?', 'Still up, huh?'
+    ]},
+    { minH: 0,  maxH: 5,  color: '#8db6f0', labels: [
+        'Midnight oil, anyone?', "Can't sleep either?", 'Late night wonderings?', 'Insomniac ideas?'
+    ]},
+  ];
 
-function getGreeting() {
-  const h = new Date().getHours();
-  const slot = timeSlots.find(s => h >= s.minH && h < s.maxH);
+  function pickGreeting() {
+    const h = new Date().getHours();
+    const slot = GREETING_SLOTS.find(s => h >= s.minH && h < s.maxH) || GREETING_SLOTS[0];
 
-  // Pick a random label, but avoid repeating the last one shown
-  let last = null;
-  try { last = localStorage.getItem('lastGreeting'); } catch (e) {}
+    // Random label, but never the same one as the previous load
+    let last = null;
+    try { last = localStorage.getItem('lastGreeting'); } catch (e) {}
 
-  const options = slot.labels.filter(l => l !== last);
-  const label = options[Math.floor(Math.random() * options.length)];
+    const options = slot.labels.filter(l => l !== last);
+    const pool = options.length ? options : slot.labels;
+    const label = pool[Math.floor(Math.random() * pool.length)];
 
-  try { localStorage.setItem('lastGreeting', label); } catch (e) {}
+    try { localStorage.setItem('lastGreeting', label); } catch (e) {}
 
-  return { label, color: slot.color };
-}
+    return { label, color: slot.color };
+  }
+
+  // ONE greeting per page load
+  const greeting = pickGreeting();
+
+  const lineEl = document.getElementById('greetingLine');
+  if (!lineEl) return;
+
+  // Does the user want the colour fade? (Settings → Preferences → Greeting Animation)
+  let animate = true;
+  try {
+    const stored = localStorage.getItem('orion_pref_greetAnim');
+    if (stored !== null) animate = JSON.parse(stored);
+  } catch (e) {}
+
+  function paint() {
+    if (lineEl.textContent !== greeting.label) lineEl.textContent = greeting.label;
+    lineEl.style.color = greeting.color;
+  }
+
+  if (animate) {
+    lineEl.textContent = greeting.label;
+    lineEl.style.color = 'var(--text-main)';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      lineEl.style.color = greeting.color;
+    }));
+  } else {
+    paint();
+  }
+
+  // If script.js (or anything else) rewrites the greeting text later,
+  // for example after login, put ours straight back.
+  new MutationObserver(paint).observe(lineEl, {
+    childList: true, characterData: true, subtree: true
+  });
+})();
 
 // ── HISTORY PANEL TOGGLE ───────────────────────────────
 const historyPanel  = document.getElementById('historyPanel');
